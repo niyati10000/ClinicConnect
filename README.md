@@ -124,3 +124,11 @@ Follow these instructions to deploy the system locally.
     Open your browser and navigate to:
     * **Dashboard:** `http://127.0.0.1:5000/`
     * **Registration:** `http://127.0.0.1:5000/register`
+
+  **Dashboard**
+  <img width="1919" height="1017" alt="Screenshot 2026-02-04 185933" src="https://github.com/user-attachments/assets/d29adf60-502f-4a32-8374-cc642c17f198" />
+
+  **Registeration_site**
+  
+<img width="1919" height="1013" alt="Screenshot 2026-02-04 185925" src="https://github.com/user-attachments/assets/6bf40faa-4acc-4c5e-a60c-f3bb224abcd4" />
+
