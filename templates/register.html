@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Patient Registration | पंजीकरण</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 50px; background-color: #f4f4f4; }
+        .form-container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); max-width: 400px; }
+        input, select, textarea { width: 100%; margin: 10px 0; padding: 8px; }
+        button { background-color: #28a745; color: white; border: none; padding: 10px; width: 100%; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>Patient Registration / रोगी पंजीकरण</h2>
+        <form method="POST">
+            <input type="text" name="name" placeholder="Full Name / पूरा नाम" required>
+            <input type="number" name="age" placeholder="Age / उम्र" required>
+            <select name="gender">
+                <option value="Male">Male / पुरुष</option>
+                <option value="Female">Female / महिला</option>
+                <option value="Other">Other / अन्य</option>
+            </select>
+            <input type="text" name="contact" placeholder="Contact Number / संपर्क नंबर" required>
+            <textarea name="issue" placeholder="Brief health issue / स्वास्थ्य समस्या का संक्षिप्त विवरण"></textarea>
+            <button type="submit">Register Patient / पंजीकरण करें</button>
+        </form>
+    </div>
+</body>
+</html>
