@@ -1,4 +1,3 @@
-# ClinicConnect
 # ClinicConnect: Appointment Management System
 
 ![Status](https://img.shields.io/badge/Status-Active-success) ![Language](https://img.shields.io/badge/Language-Python_3-blue) ![Framework](https://img.shields.io/badge/Framework-Flask-green) ![Architecture](https://img.shields.io/badge/Architecture-Offline--First-orange)
