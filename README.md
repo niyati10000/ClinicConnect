@@ -6,35 +6,50 @@
 
 ---
 
-## 1. Problem Statement & Business Case
+## 1. Key Features
 
-The foundation of this project addresses a critical gap in rural and semi-urban healthcare management, where digital infrastructure is often unreliable.
-
-* **The Challenge:** Small clinics currently rely on manual paper-based registers. This leads to severe scheduling conflicts, inability to track patient history, and chaotic overbooking during peak seasons (e.g., monsoons or flu outbreaks).
-* **The Solution:** A robust, cost-effective system designed for staff with limited technical expertise.
-    * **Offline Capability:** Fully functional without an active internet connection.
-    * **Bilingual Support:** Native support for Hindi and English to ensure accessibility for local staff.
-    * **Performance:** Engineered to run on low-spec hardware (2GB RAM) with sub-2-second response times.
+* **Offline-First Architecture:** Engineered to remain fully functional without an active internet connection, ensuring reliability in regions with unstable digital infrastructure.
+* **Native Bilingual Support:** Deep integration of both Hindi and English interfaces to ensure accessibility and ease of use for local clinic staff.
+* **Optimized for Low-Spec Hardware:** Designed to operate smoothly on legacy systems (minimum 2GB RAM) while maintaining sub-2-second response times.
+* **Automated Communication:** Integrated Twilio API for sending automated SMS appointment confirmations and reminders to patients.
+* **Dynamic Scheduling:** Automated slot management logic that strictly prevents double-booking and manages high patient volumes efficiently.
 
 ---
 
-## 2. Software Requirements Specification (SRS)
+## 2. Problem Statement & Business Case
 
-This system is built according to the **IEEE 830-1998 Standard**, ensuring rigorous adherence to functional and non-functional requirements.
+Small clinics in rural and semi-urban areas currently rely heavily on manual, paper-based registers. This operational model presents severe limitations:
+* High frequency of scheduling conflicts and double-bookings.
+* Inability to accurately track or retrieve patient medical histories.
+* Chaotic overbooking during peak periods, such as monsoon seasons or flu outbreaks.
 
-### Functional Scope
-* **Patient Management:** Digital registration, distinct identification, and medical history tracking.
-* **Dynamic Scheduling:** Automated slot management that prevents double-booking.
-* **Communication:** Integration with Twilio for automated SMS appointment confirmations and reminders.
-
-### Stakeholder Analysis
-* **Receptionists:** Benefit from a high-contrast, simplified UI that eliminates data entry errors during rapid walk-in registrations.
-* **Doctors:** Gain access to a visualized dashboard of daily schedules, preventing burnout and improving care delivery.
-* **Patients:** Experience reduced physical wait times and receive timely updates via SMS.
+**ClinicConnect** provides a robust, cost-effective digital alternative tailored specifically for staff with limited technical expertise. By automating data entry and schedule visualization, it eliminates errors during rapid walk-in registrations, prevents doctor burnout, and drastically reduces physical wait times for patients. Engineered to run on low-spec hardware (2GB RAM) with sub-2-second response times.
 
 ---
 
-## 3. System Design & Architecture
+## 3. Software Requirements Specification (SRS)
+
+This system is architected in alignment with the **IEEE 830-1998 Standard**, ensuring rigorous adherence to both functional capabilities and strict environmental constraints.
+
+### A. Functional Requirements
+* **Patient Management Engine:** Digital registration with auto-generated Unique IDs, comprehensive demographic profiling, and medical history tracking.
+* **Dynamic Scheduling System:** Algorithmic slot management that actively calculates doctor availability and strictly prevents double-booking.
+* **Communication Gateway:** Asynchronous integration with the Twilio API to dispatch automated SMS appointment confirmations and reminders.
+* **Analytics Dashboard:** Real-time aggregation of clinic metrics, including daily patient footfall, active appointments, and doctor availability statuses.
+
+### B. Non-Functional Requirements (NFRs)
+* **Reliability (Offline-First):** Must maintain 100% core functionality without internet access, utilizing local SQLite file-based storage.
+* **Accessibility:** Must provide native, seamless toggling between English and Hindi (हिंदी) without requiring page reloads or external translation plugins.
+* **Performance Constraints:** Engineered to execute smoothly on legacy clinic hardware (minimum 2GB RAM / Dual-Core processors) with sub-2-second query response times.
+
+### C. Stakeholder Impact Analysis
+* **Receptionists (Operators):** Benefit from a high-contrast, minimalist UI that reduces cognitive load and eliminates data-entry errors during rapid walk-in registrations.
+* **Doctors (Providers):** Gain access to a clean, visualized dashboard of their daily schedule, minimizing administrative fatigue and improving care delivery.
+* **Patients (End-Users):** Experience drastically reduced physical wait times through structured slotting and receive immediate digital confirmation of their appointments.
+
+---
+
+## 4. System Design & Architecture
 
 This section details the visual modeling and technical blueprints used to architect the system. These models translate the functional requirements into a structured format for implementation.
 
@@ -44,9 +59,6 @@ These diagrams define the static structure and data organization.
 * **Class Diagram:** Defines the object-oriented structure, mapping key entities like `Patient`, `Doctor`, and `Appointment`, along with their attributes and relationships (e.g., one doctor handles multiple appointments).
 
 * **Data Flow Diagram (DFD):** Visualizes the lifecycle of information—from user input at the reception desk, through the processing logic, to persistent storage in the SQLite database, and finally to report generation.
-
-
-[Image of data flow diagram for clinic management system]
 
 
 ### B. Behavioral Modeling (The Logic)
@@ -62,7 +74,7 @@ These diagrams illustrate how the system handles workflows and responds to exter
 
 ---
 
-## 4. Technical Implementation
+## 5. Technical Implementation
 
 The application follows a monolithic, offline-first architecture to ensure reliability in low-connectivity regions.
 
@@ -75,20 +87,50 @@ The application follows a monolithic, offline-first architecture to ensure relia
 ### Repository Structure
 | File/Directory | Description |
 | :--- | :--- |
-| `app.py` | Main controller handling HTTP routing, bilingual logic switching, and database interactions. |
-| `database.py` | Initialization script that defines the schema and generates the local `clinic.db` file. |
+| `app.py` | Main Flask controller with 10+ routes for patients, doctors, and appointments. |
+| `database.py` | Database initialization script pre-loaded with sample doctors data. |
 | `requirements.txt` | Manifest of Python dependencies (Flask, Pandas, Twilio, etc.). |
-| `/templates` | HTML view files for the Dashboard and Registration pages. |
+| `clinic.db` | SQLite database (auto-generated upon initialization). |
+| `/templates` | Directory containing all HTML Jinja2 view files. |
+| ├── `index.html` | Home dashboard with live statistics and navigation. |
+| ├── `register.html` | Bilingual patient registration form. |
+| ├── `patients.html` | List view of all registered patients. |
+| ├── `doctors.html` | Grid view of all doctors and their specializations. |
+| ├── `appointments.html` | Complete appointment manager with status tracking. |
+| └── `patient_detail.html` | Individual patient view displaying medical history. |
+
+### Available Routes (Endpoints)
+| Route | Method | Description |
+| :--- | :--- | :--- |
+| `/` or `/home` | GET | Renders the home dashboard with statistics. |
+| `/register` | GET/POST | Handles the patient registration form submission. |
+| `/patients` | GET | Displays all registered patients. |
+| `/doctors` | GET | Displays the doctor directory. |
+| `/appointments` | GET | Displays all scheduled and past appointments. |
+| `/patient/<id>` | GET | Fetches details for a specific single patient. |
+| `/appointment/cancel/<id>`| GET | Logic to cancel an active appointment. |
+| `/api/stats` | GET | JSON API endpoint feeding data to the dashboard. |
 
 ### Database Schema
-The relational model is implemented in `clinic.db` with three primary entities:
-1.  **Patients:** Stores unique IDs, demographic details, and medical history.
-2.  **Doctors:** Tracks specialization, IDs, and availability status.
-3.  **Appointments:** The associative entity linking Patients and Doctors to specific time slots.
 
----
+The system uses a lightweight SQLite database (`clinic.db`) with three main tables to keep everything organized:
 
-## 5. Installation & Setup
+**1. Patients Table**
+* **Purpose:** Stores all patient records and medical details.
+* **What it saves:** Patient ID, Name, Age, Gender, Contact Number, Health Issue, and the Date they registered.
+
+**2. Doctors Table**
+* **Purpose:** Manages the clinic's medical staff and their schedules.
+* **What it saves:** Doctor ID, Name, Specialization (e.g., Cardiologist), Working Hours, and Current Availability.
+* *Note: This table comes pre-loaded with 6 sample doctors so you can test the system immediately.*
+
+**3. Appointments Table**
+* **Purpose:** The core table that connects a Patient to a specific Doctor for a visit.
+* **What it saves:** Appointment ID, the chosen Date and Time, the Type of visit (Walk-in/Pre-booked), and the Status (Scheduled, Completed, or Cancelled).
+
+
+
+## 6. Installation & Setup
 
 Follow these instructions to deploy the system locally.
 
@@ -97,33 +139,31 @@ Follow these instructions to deploy the system locally.
 * Git installed
 
 ### Steps
-1.  **Clone the Repository**
-    ```bash
-    git clone [https://github.com/niyati10000/ClinicConnect.git](https://github.com/niyati10000/ClinicConnect.git)
-    cd ClinicConnect
-    ```
+
+1. **Clone the Repository**
+   ```bash
+   git clone [https://github.com/niyati10000/ClinicConnect.git](https://github.com/niyati10000/ClinicConnect.git)
+   cd ClinicConnect
 
 2.  **Install Dependencies**
-    ```bash
-    pip install -r requirements.txt
-    ```
+   pip install -r requirements.txt
 
 3.  **Initialize the Database**
-    Run the setup script to generate the local SQLite database file.
-    ```bash
+    Run the setup script to generate the local SQLite database file (clinic.db).
     python database.py
-    ```
 
-4.  **Run the Application**
+5.  **Run the Application**
     Start the Flask development server.
-    ```bash
     python app.py
-    ```
 
-5.  **Access the Dashboard**
-    Open your browser and navigate to:
-    * **Dashboard:** `http://127.0.0.1:5000/`
-    * **Registration:** `http://127.0.0.1:5000/register`
+6. **Access the Application**
+   Open your browser and navigate to the following local addresses to explore the system:
+
+   * **Main Dashboard:** `http://127.0.0.1:5000/`
+   * **Patient Registration:** `http://127.0.0.1:5000/register`
+   * **View All Patients:** `http://127.0.0.1:5000/patients`
+   * **Doctor Directory:** `http://127.0.0.1:5000/doctors`
+   * **Manage Appointments:** `http://127.0.0.1:5000/appointments`
 
 **Dashboard**
 
