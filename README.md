@@ -1,4 +1,4 @@
-# ClinicConnect: Appointment Management System
+<img width="979" height="522" alt="Screenshot 2026-02-25 154541" src="https://github.com/user-attachments/assets/c77bf400-d88b-41ef-8fc6-814df0e4ceab" /># ClinicConnect: Appointment Management System
 
 ![Status](https://img.shields.io/badge/Status-Active-success) ![Language](https://img.shields.io/badge/Language-Python_3-blue) ![Framework](https://img.shields.io/badge/Framework-Flask-green) ![Architecture](https://img.shields.io/badge/Architecture-Offline--First-orange)
 
@@ -125,10 +125,23 @@ Follow these instructions to deploy the system locally.
     * **Dashboard:** `http://127.0.0.1:5000/`
     * **Registration:** `http://127.0.0.1:5000/register`
 
-  **Dashboard**
-  <img width="1919" height="1017" alt="Screenshot 2026-02-04 185933" src="https://github.com/user-attachments/assets/d29adf60-502f-4a32-8374-cc642c17f198" />
+**Dashboard**
+<img width="709" height="739" alt="Screenshot 2026-02-25 154324" src="https://github.com/user-attachments/assets/2be68495-82ea-4518-bc03-a54e29f1fe86" />
 
-  **Registeration_site**
   
-<img width="1919" height="1013" alt="Screenshot 2026-02-04 185925" src="https://github.com/user-attachments/assets/6bf40faa-4acc-4c5e-a60c-f3bb224abcd4" />
+**Registeration_site**
+<img width="640" height="737" alt="Screenshot 2026-02-25 154424" src="https://github.com/user-attachments/assets/9c1f14b7-3a39-4b57-921b-fbd9cff675cb" />
+
+
+  
+**doctors_site**
+<img width="979" height="522" alt="Screenshot 2026-02-25 154541" src="https://github.com/user-attachments/assets/d2d8f61b-f207-4f1a-89b9-dcea85f0e111" />
+
+
+
+**appointnment_site**
+<img width="867" height="285" alt="Screenshot 2026-02-25 154548" src="https://github.com/user-attachments/assets/bfd1f54d-4035-4636-9ba2-e05fa93da274" />
+
+
+
 
