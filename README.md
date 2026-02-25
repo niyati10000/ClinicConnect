@@ -1,4 +1,4 @@
-<img width="979" height="522" alt="Screenshot 2026-02-25 154541" src="https://github.com/user-attachments/assets/c77bf400-d88b-41ef-8fc6-814df0e4ceab" /># ClinicConnect: Appointment Management System
+# ClinicConnect: Appointment Management System
 
 ![Status](https://img.shields.io/badge/Status-Active-success) ![Language](https://img.shields.io/badge/Language-Python_3-blue) ![Framework](https://img.shields.io/badge/Framework-Flask-green) ![Architecture](https://img.shields.io/badge/Architecture-Offline--First-orange)
 
