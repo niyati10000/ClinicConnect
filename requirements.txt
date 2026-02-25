@@ -1,0 +1,12 @@
+# Web Framework
+flask
+
+# Data Analysis for Clinic Dashboards (Exp 11)
+pandas
+
+# SMS/WhatsApp Notifications (Exp 9)
+twilio
+
+# Database
+# (sqlite3 is built into Python, no extra install needed)
+Flask==2.3.3

@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Registration | रोगी पंजीकरण - ClinicConnect</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header-bar {
+            background: white;
+            border-radius: 15px;
+            padding: 15px 30px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.3s;
+        }
+
+        .nav-link:hover {
+            color: #667eea;
+        }
+
+        .registration-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-header h2 {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .form-header p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .form-header i {
+            font-size: 50px;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .label-bilingual {
+            color: #999;
+            font-size: 14px;
+            font-weight: normal;
+            margin-left: 5px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            color: #667eea;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 15px 12px 45px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        textarea {
+            padding: 12px 15px 12px 45px;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .phone-hint {
+            position: absolute;
+            left: 45px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            font-size: 14px;
+            pointer-events: none;
+        }
+
+        .phone-hint + input {
+            padding-left: 95px;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-submit i {
+            font-size: 20px;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .required-field::after {
+            content: "*";
+            color: red;
+            margin-left: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .registration-card {
+                padding: 20px;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-group.full-width {
+                grid-column: span 1;
+            }
+            
+            .header-bar {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-bar">
+            <div class="logo">
+                <i class="fas fa-clinic-medical"></i>
+                <span>ClinicConnect</span>
+            </div>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}" class="nav-link">
+                    <i class="fas fa-home"></i> Home
+                </a>
+                <a href="{{ url_for('view_patients') }}" class="nav-link">
+                    <i class="fas fa-users"></i> Patients
+                </a>
+                <a href="{{ url_for('view_doctors') }}" class="nav-link">
+                    <i class="fas fa-user-md"></i> Doctors
+                </a>
+                <a href="{{ url_for('view_appointments') }}" class="nav-link">
+                    <i class="fas fa-calendar-check"></i> Appointments
+                </a>
+            </div>
+        </div>
+
+        <div class="registration-card">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="{{ category }}-message">
+                            <i class="fas fa-{% if category == 'success' %}check-circle{% else %}exclamation-circle{% endif %}"></i>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="form-header">
+                <i class="fas fa-user-plus"></i>
+                <h2>Patient Registration / रोगी पंजीकरण</h2>
+                <p>Please fill in the patient details below | कृपया नीचे रोगी का विवरण भरें</p>
+            </div>
+
+            <form method="POST" action="{{ url_for('register') }}" id="registrationForm">
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label class="required-field">
+                            Full Name <span class="label-bilingual">(पूरा नाम)</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-user input-icon"></i>
+                            <input type="text" name="name" placeholder="Enter full name / पूरा नाम दर्ज करें" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="required-field">
+                            Age <span class="label-bilingual">(उम्र)</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-calendar input-icon"></i>
+                            <input type="number" name="age" placeholder="Age / उम्र" min="0" max="150" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="required-field">
+                            Gender <span class="label-bilingual">(लिंग)</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-venus-mars input-icon"></i>
+                            <select name="gender" required>
+                                <option value="" disabled selected>Select gender / लिंग चुनें</option>
+                                <option value="Male">Male / पुरुष</option>
+                                <option value="Female">Female / महिला</option>
+                                <option value="Other">Other / अन्य</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label class="required-field">
+                            Contact Number <span class="label-bilingual">(संपर्क नंबर)</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-phone input-icon"></i>
+                            <span class="phone-hint">+91</span>
+                            <input type="tel" name="contact" placeholder="98765 43210" pattern="[0-9]{10}" maxlength="10" required>
+                        </div>
+                        <small style="color: #999; margin-top: 5px; display: block;">Enter 10-digit mobile number / 10 अंकों का मोबाइल नंबर दर्ज करें</small>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>
+                            Health Issue <span class="label-bilingual">(स्वास्थ्य समस्या)</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-notes-medical input-icon"></i>
+                            <textarea name="issue" placeholder="Brief description of health issue / स्वास्थ्य समस्या का संक्षिप्त विवरण"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>
+                            Preferred Date <span class="label-bilingual">(सुविधाजनक तिथि)</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-calendar-alt input-icon"></i>
+                            <input type="date" name="preferred_date" id="preferredDate">
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-save"></i> Register Patient / पंजीकरण करें
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Set min date to today for preferred date
+        document.addEventListener('DOMContentLoaded', function() {
+            const dateInput = document.getElementById('preferredDate');
+            if (dateInput) {
+                const today = new Date().toISOString().split('T')[0];
+                dateInput.min = today;
+            }
+        });
+
+        // Form validation
+        document.getElementById('registrationForm').addEventListener('submit', function(e) {
+            const contact = document.querySelector('input[name="contact"]').value;
+            if (contact.length !== 10 || !/^\d+$/.test(contact)) {
+                e.preventDefault();
+                alert('Please enter a valid 10-digit mobile number / कृपया वैध 10 अंकों का मोबाइल नंबर दर्ज करें');
+            }
+        });
+    </script>
+</body>
+</html>

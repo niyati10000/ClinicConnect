@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registered Patients | पंजीकृत रोगी - ClinicConnect</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header-bar {
+            background: white;
+            border-radius: 15px;
+            padding: 15px 30px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.3s;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .nav-link:hover {
+            color: #667eea;
+            background: #f0f0f0;
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .page-header h1 {
+            color: #333;
+            font-size: 28px;
+        }
+
+        .page-header h1 i {
+            color: #667eea;
+            margin-right: 10px;
+        }
+
+        .btn-primary {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.3s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+
+        th:first-child {
+            border-radius: 10px 0 0 0;
+        }
+
+        th:last-child {
+            border-radius: 0 10px 0 0;
+        }
+
+        tr:hover {
+            background: #f7fafc;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .header-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            th, td {
+                padding: 10px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-bar">
+            <div class="logo">
+                <i class="fas fa-clinic-medical"></i>
+                <span>ClinicConnect</span>
+            </div>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}" class="nav-link">
+                    <i class="fas fa-home"></i> Home
+                </a>
+                <a href="{{ url_for('register') }}" class="nav-link">
+                    <i class="fas fa-user-plus"></i> Register
+                </a>
+                <a href="{{ url_for('view_doctors') }}" class="nav-link">
+                    <i class="fas fa-user-md"></i> Doctors
+                </a>
+                <a href="{{ url_for('view_appointments') }}" class="nav-link">
+                    <i class="fas fa-calendar-check"></i> Appointments
+                </a>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <div class="page-header">
+                <h1>
+                    <i class="fas fa-users"></i>
+                    Registered Patients / पंजीकृत रोगी
+                </h1>
+                <a href="{{ url_for('register') }}" class="btn-primary">
+                    <i class="fas fa-plus"></i> Register New Patient
+                </a>
+            </div>
+
+            <div class="table-container">
+                {% if patients %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name / नाम</th>
+                            <th>Age / उम्र</th>
+                            <th>Gender / लिंग</th>
+                            <th>Contact / संपर्क</th>
+                            <th>Health Issue / समस्या</th>
+                            <th>Registration Date / पंजीकरण तिथि</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for patient in patients %}
+                        <tr>
+                            <td><strong>#{{ patient.patient_id }}</strong></td>
+                            <td>{{ patient.name }}</td>
+                            <td>{{ patient.age }}</td>
+                            <td>{{ patient.gender }}</td>
+                            <td>{{ patient.contact_number }}</td>
+                            <td>{{ patient.health_issue or '—' }}</td>
+                            <td>{{ patient.registration_date }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-users"></i>
+                    <h3>No patients registered yet</h3>
+                    <p>Click the "Register New Patient" button to add your first patient.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

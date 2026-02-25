@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctors | डॉक्टर्स - ClinicConnect</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header-bar {
+            background: white;
+            border-radius: 15px;
+            padding: 15px 30px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.3s;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .nav-link:hover {
+            color: #667eea;
+            background: #f0f0f0;
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-header h1 {
+            color: #333;
+            font-size: 28px;
+        }
+
+        .page-header h1 i {
+            color: #667eea;
+            margin-right: 10px;
+        }
+
+        .btn-primary {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.3s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+        }
+
+        .doctors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .doctor-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 20px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .doctor-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+
+        .doctor-icon {
+            font-size: 40px;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .doctor-name {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .doctor-specialization {
+            color: #667eea;
+            font-weight: 500;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .doctor-hours {
+            color: #666;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .status-Available {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-Unavailable, .status-Busy {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 60px;
+            margin-bottom: 20px;
+            color: #667eea;
+        }
+
+        .empty-state h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .debug-info {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-bar">
+            <div class="logo">
+                <i class="fas fa-clinic-medical"></i>
+                <span>ClinicConnect</span>
+            </div>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}" class="nav-link">
+                    <i class="fas fa-home"></i> Home
+                </a>
+                <a href="{{ url_for('register') }}" class="nav-link">
+                    <i class="fas fa-user-plus"></i> Register
+                </a>
+                <a href="{{ url_for('view_patients') }}" class="nav-link">
+                    <i class="fas fa-users"></i> Patients
+                </a>
+                <a href="{{ url_for('view_appointments') }}" class="nav-link">
+                    <i class="fas fa-calendar-check"></i> Appointments
+                </a>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <div class="page-header">
+                <h1>
+                    <i class="fas fa-user-md"></i>
+                    Our Doctors / हमारे डॉक्टर्स
+                </h1>
+                <a href="{{ url_for('register') }}" class="btn-primary">
+                    <i class="fas fa-user-plus"></i> New Patient
+                </a>
+            </div>
+
+            <!-- Debug info - remove after fixing -->
+            <div class="debug-info">
+                <strong>Debug:</strong> Doctors count: {{ doctors|length if doctors else 0 }}
+            </div>
+
+            {% if doctors and doctors|length > 0 %}
+            <div class="doctors-grid">
+                {% for doctor in doctors %}
+                <div class="doctor-card">
+                    <div class="doctor-icon">
+                        <i class="fas fa-user-md"></i>
+                    </div>
+                    <div class="doctor-name">{{ doctor.name }}</div>
+                    <div class="doctor-specialization">{{ doctor.specialization }}</div>
+                    <div class="doctor-hours">
+                        <i class="fas fa-clock"></i>
+                        {{ doctor.working_hours }}
+                    </div>
+                    <div>
+                        {% if doctor.availability_status == 'Available' %}
+                            <span class="status-badge status-Available">
+                                <i class="fas fa-check-circle"></i> {{ doctor.availability_status }}
+                            </span>
+                        {% else %}
+                            <span class="status-badge status-Unavailable">
+                                <i class="fas fa-times-circle"></i> {{ doctor.availability_status }}
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-user-md"></i>
+                <h3>No Doctors Found</h3>
+                <p>There are no doctors in the system yet.</p>
+                <p style="margin-top: 20px; font-size: 14px; color: #999;">
+                    <i class="fas fa-info-circle"></i> 
+                    Sample doctors should be added automatically when the app starts.
+                </p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
