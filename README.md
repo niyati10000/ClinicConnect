@@ -126,20 +126,24 @@ Follow these instructions to deploy the system locally.
     * **Registration:** `http://127.0.0.1:5000/register`
 
 **Dashboard**
+
 <img width="709" height="739" alt="Screenshot 2026-02-25 154324" src="https://github.com/user-attachments/assets/2be68495-82ea-4518-bc03-a54e29f1fe86" />
 
   
 **Registeration_site**
+
 <img width="640" height="737" alt="Screenshot 2026-02-25 154424" src="https://github.com/user-attachments/assets/9c1f14b7-3a39-4b57-921b-fbd9cff675cb" />
 
 
   
 **doctors_site**
+
 <img width="979" height="522" alt="Screenshot 2026-02-25 154541" src="https://github.com/user-attachments/assets/d2d8f61b-f207-4f1a-89b9-dcea85f0e111" />
 
 
 
 **appointnment_site**
+
 <img width="867" height="285" alt="Screenshot 2026-02-25 154548" src="https://github.com/user-attachments/assets/bfd1f54d-4035-4636-9ba2-e05fa93da274" />
 
 
