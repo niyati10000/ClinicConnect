@@ -168,6 +168,5 @@ Follow these instructions to deploy the system locally.
 **video reference**
 
 
-https://github.com/user-attachments/assets/558f5e84-7152-4372-9517-e2d7f7b652bf
-
+https://github.com/user-attachments/assets/ce2e5cb7-b385-4e13-84f5-773f2d9baacb
 
