@@ -6,6 +6,10 @@
 
 ---
 
+## hosted link:
+
+https://niyati26.pythonanywhere.com/
+
 ## 1. Key Features
 
 * **Offline-First Architecture:** Engineered to remain fully functional without an active internet connection, ensuring reliability in regions with unstable digital infrastructure.
