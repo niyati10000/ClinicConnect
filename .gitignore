@@ -19,3 +19,4 @@ instance/
 venv/
 ENV/
 env/
+*.db
