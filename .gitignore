@@ -1,0 +1,21 @@
+# Compiled Python files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Local configuration and private variables
+.env
+.env.local
+.env.*.local
+
+# Local SQLite databases
+clinic.db
+instance/
+
+# Python Virtual Environments
+.venv/
+venv/
+ENV/
+env/

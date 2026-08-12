@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}ClinicConnect - Patients / रोगी सूची{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+    <div>
+        <h1 class="trn" data-en="Patient Directory" data-hi="रोगी निर्देशिका" style="font-family: var(--font-heading); font-size: 28px; font-weight: 700;">Patient Directory</h1>
+        <p class="trn" data-en="Manage and view patient medical files" data-hi="रोगी मेडिकल फाइलों को प्रबंधित और देखें" style="color: var(--text-secondary); font-size: 14px;">Manage and view patient medical files</p>
+    </div>
+    
+    {% if session.get('active_role') == 'receptionist' %}
+    <a href="{{ url_for('patients.register') }}" class="btn btn-primary">
+        <i class="fa-solid fa-user-plus"></i>
+        <span class="trn" data-en="Register New Patient" data-hi="नया रोगी पंजीकृत करें">Register New Patient</span>
+    </a>
+    {% endif %}
+</div>
+
+<!-- Bento Search Card -->
+<div class="bento-grid">
+    <div class="bento-card span-12">
+        <form action="{{ url_for('patients.index') }}" method="GET" style="display: flex; gap: 12px; width: 100%;">
+            <div style="flex: 1; position: relative;">
+                <input type="text" name="q" value="{{ query }}" class="form-control trn" 
+                       data-en="Search by patient name or contact number..." 
+                       data-hi="रोगी के नाम या संपर्क नंबर से खोजें..." 
+                       placeholder="Search by patient name or contact number..." style="padding-left: 40px;">
+                <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 16px; top: 16px; color: var(--text-secondary);"></i>
+            </div>
+            <button type="submit" class="btn btn-secondary">
+                <span class="trn" data-en="Search" data-hi="खोजें">Search</span>
+            </button>
+            {% if query %}
+            <a href="{{ url_for('patients.index') }}" class="btn btn-secondary" style="border: 1px dashed var(--color-danger); color: var(--color-danger);">
+                <i class="fa-solid fa-xmark"></i>
+            </a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<!-- Bento List Card -->
+<div class="bento-grid">
+    <div class="bento-card span-12" style="padding: 0; overflow: hidden;">
+        <div class="table-responsive">
+            <table class="clinic-table">
+                <thead>
+                    <tr>
+                        <th class="trn" data-en="ID" data-hi="आईडी">ID</th>
+                        <th class="trn" data-en="Name" data-hi="नाम">Name</th>
+                        <th class="trn" data-en="Age / Gender" data-hi="उम्र / लिंग">Age / Gender</th>
+                        <th class="trn" data-en="Contact" data-hi="संपर्क">Contact</th>
+                        <th class="trn" data-en="Registration Date" data-hi="पंजीकरण तिथि">Registration Date</th>
+                        <th class="trn" data-en="Primary Health Issue" data-hi="मुख्य स्वास्थ्य समस्या">Primary Health Issue</th>
+                        <th class="trn" data-en="Actions" data-hi="कार्रवाई" style="text-align: right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for patient in patients %}
+                    <tr>
+                        <td><strong>#{{ patient.patient_id }}</strong></td>
+                        <td>
+                            <a href="{{ url_for('patients.details', patient_id=patient.patient_id) }}" style="font-weight: 600; color: var(--color-primary);">
+                                {{ patient.name }}
+                            </a>
+                        </td>
+                        <td>{{ patient.age or 'N/A' }} / {{ patient.gender or 'N/A' }}</td>
+                        <td>{{ patient.contact_number }}</td>
+                        <td>{{ patient.registration_date.strftime('%d-%b-%Y') }}</td>
+                        <td>
+                            <span style="font-size: 13px; color: var(--text-secondary); max-width: 250px; display: inline-block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                {{ patient.health_issue or 'None logged' }}
+                            </span>
+                        </td>
+                        <td style="text-align: right; display: flex; justify-content: flex-end; gap: 8px;">
+                            <a href="{{ url_for('patients.details', patient_id=patient.patient_id) }}" class="btn btn-secondary btn-icon" title="View Patient Profile">
+                                <i class="fa-solid fa-folder-open"></i>
+                            </a>
+                            {% if session.get('active_role') == 'receptionist' %}
+                            <a href="{{ url_for('appointments.book', patient_id=patient.patient_id) }}" class="btn btn-primary btn-icon" title="Book Appointment" style="background: var(--color-success); box-shadow: none;">
+                                <i class="fa-solid fa-calendar-plus"></i>
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px; color: var(--text-secondary);">
+                            <i class="fa-solid fa-face-meh" style="font-size: 40px; margin-bottom: 10px; color: var(--text-muted);"></i>
+                            <p class="trn" data-en="No patients found." data-hi="कोई रोगी नहीं मिला।">No patients found.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

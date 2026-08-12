@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}ClinicConnect - Doctors / डॉक्टर सूची{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+    <div>
+        <h1 class="trn" data-en="Doctor Directory" data-hi="डॉक्टर निर्देशिका" style="font-family: var(--font-heading); font-size: 28px; font-weight: 700;">Doctor Directory</h1>
+        <p class="trn" data-en="Manage doctor shifts and active statuses" data-hi="डॉक्टर शिफ्ट और सक्रिय स्थिति प्रबंधित करें" style="color: var(--text-secondary); font-size: 14px;">Manage doctor shifts and active statuses</p>
+    </div>
+    
+    {% if session.get('active_role') == 'receptionist' %}
+    <a href="{{ url_for('doctors.add') }}" class="btn btn-primary">
+        <i class="fa-solid fa-user-md"></i>
+        <span class="trn" data-en="Add New Doctor" data-hi="नया डॉक्टर जोड़ें">Add New Doctor</span>
+    </a>
+    {% endif %}
+</div>
+
+<!-- Bento List Card -->
+<div class="bento-grid">
+    <div class="bento-card span-12" style="padding: 0; overflow: hidden;">
+        <div class="table-responsive">
+            <table class="clinic-table">
+                <thead>
+                    <tr>
+                        <th class="trn" data-en="ID" data-hi="आईडी">ID</th>
+                        <th class="trn" data-en="Name" data-hi="नाम">Name</th>
+                        <th class="trn" data-en="Specialization" data-hi="विशेषज्ञता">Specialization</th>
+                        <th class="trn" data-en="Shift / Working Hours" data-hi="शिफ्ट / कार्य समय">Shift / Working Hours</th>
+                        <th class="trn" data-en="Availability Status" data-hi="उपलब्धता स्थिति">Availability Status</th>
+                        {% if session.get('active_role') == 'receptionist' %}
+                        <th class="trn" data-en="Toggle Status" data-hi="स्थिति बदलें" style="text-align: right;">Toggle Status</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for doc in doctors %}
+                    <tr>
+                        <td><strong>#{{ doc.doctor_id }}</strong></td>
+                        <td style="font-weight: 600;">{{ doc.name }}</td>
+                        <td>{{ doc.specialization or 'General Physician' }}</td>
+                        <td><i class="fa-regular fa-clock" style="margin-right: 6px; color: var(--color-secondary);"></i> {{ doc.working_hours_start }} - {{ doc.working_hours_end }}</td>
+                        <td>
+                            <span class="badge {{ 'badge-success' if doc.availability_status == 'Available' else 'badge-danger' }}">
+                                <span class="status-indicator {{ 'status-online' if doc.availability_status == 'Available' else 'status-offline' }}"></span>
+                                {{ doc.availability_status }}
+                            </span>
+                        </td>
+                        {% if session.get('active_role') == 'receptionist' %}
+                        <td style="text-align: right;">
+                            <form action="{{ url_for('doctors.toggle_status', doctor_id=doc.doctor_id) }}" method="POST" style="display: inline;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                <button type="submit" class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">
+                                    <i class="fa-solid fa-sync"></i>
+                                    <span class="trn" data-en="Toggle" data-hi="बदलें">Toggle</span>
+                                </button>
+                            </form>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 40px; color: var(--text-secondary);">
+                            <i class="fa-solid fa-user-slash" style="font-size: 40px; margin-bottom: 10px; color: var(--text-muted);"></i>
+                            <p class="trn" data-en="No doctors registered for this clinic." data-hi="इस क्लिनिक के लिए कोई डॉक्टर पंजीकृत नहीं हैं।">No doctors registered for this clinic.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

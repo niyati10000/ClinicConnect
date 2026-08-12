@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ClinicConnect{% endblock %}</title>
+    
+    <!-- FontAwesome & Chart.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Custom Theme variables loading script (runs instantly to prevent flash) -->
+    <script>
+        const savedTheme = localStorage.getItem('clinic-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
+    
+    <!-- Application Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- Flash Alert Notifications -->
+    <div class="alert-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'success' if category == 'success' else 'danger' if category == 'error' else 'warning' }}">
+                        <i class="fa-solid {{ 'fa-circle-check' if category == 'success' else 'fa-circle-xmark' if category == 'error' else 'fa-triangle-exclamation' }}"></i>
+                        <span>{{ message }}</span>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <div class="app-container">
+        
+        <!-- Header & Glass Navbar -->
+        <header class="navbar no-print">
+            <!-- Brand & Clinic Chip -->
+            <div style="display: flex; align-items: center; gap: 14px; flex-shrink: 0;">
+                <a href="{{ url_for('dashboard.index') }}" class="nav-brand">
+                    <i class="fa-solid fa-house-chimney-medical"></i>
+                    <span>ClinicConnect</span>
+                </a>
+                
+                {% if session.get('clinic_name') %}
+                    <div class="clinic-chip" title="Current Clinic Partition">
+                        <i class="fa-solid fa-hospital"></i>
+                        <span>{{ session.get('clinic_name') }}</span>
+                    </div>
+                {% endif %}
+            </div>
+            
+            {% if session.get('clinic_id') %}
+            <!-- Navigation Links -->
+            <nav class="nav-menu">
+                <a href="{{ url_for('dashboard.index') }}" class="nav-link {% if request.blueprint == 'dashboard' %}active{% endif %}">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span class="trn" data-en="Dashboard" data-hi="डैशबोर्ड">Dashboard</span>
+                </a>
+                
+                <a href="{{ url_for('patients.index') }}" class="nav-link {% if request.blueprint == 'patients' %}active{% endif %}">
+                    <i class="fa-solid fa-hospital-user"></i>
+                    <span class="trn" data-en="Patients" data-hi="रोगी">Patients</span>
+                </a>
+                
+                <a href="{{ url_for('doctors.index') }}" class="nav-link {% if request.blueprint == 'doctors' %}active{% endif %}">
+                    <i class="fa-solid fa-user-doctor"></i>
+                    <span class="trn" data-en="Doctors" data-hi="डॉक्टर">Doctors</span>
+                </a>
+                
+                <a href="{{ url_for('appointments.index') }}" class="nav-link {% if request.blueprint == 'appointments' %}active{% endif %}">
+                    <i class="fa-solid fa-calendar-check"></i>
+                    <span class="trn" data-en="Appointments" data-hi="अपॉइंटमेंट">Appointments</span>
+                </a>
+                
+                {% if session.get('active_role') == 'receptionist' %}
+                <a href="{{ url_for('billing.index') }}" class="nav-link {% if request.blueprint == 'billing' %}active{% endif %}">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                    <span class="trn" data-en="Billing" data-hi="बिलिंग">Billing</span>
+                </a>
+                {% endif %}
+                
+                <a href="{{ url_for('inventory.index') }}" class="nav-link {% if request.blueprint == 'inventory' %}active{% endif %}">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                    <span class="trn" data-en="Inventory" data-hi="इन्वेंटरी">Inventory</span>
+                </a>
+                
+                {% if session.get('active_role') == 'receptionist' %}
+                <a href="{{ url_for('sync.index') }}" class="nav-link {% if request.blueprint == 'sync' %}active{% endif %}">
+                    <i class="fa-solid fa-tower-broadcast"></i>
+                    <span class="trn" data-en="Sync Hub" data-hi="सिंक हब">Sync Hub</span>
+                    {% if session.get('pending_sync_count', 0) > 0 %}
+                        <span class="sync-count-pill">{{ session.get('pending_sync_count') }}</span>
+                    {% endif %}
+                </a>
+                {% endif %}
+            </nav>
+            {% endif %}
+            
+            <!-- Utility Actions -->
+            <div class="nav-actions">
+                {% if session.get('clinic_id') %}
+                <!-- Network Online/Offline Toggle -->
+                <button onclick="toggleNetworkStatus()" class="btn-utility" id="network-status-btn" title="Toggle Network Connection">
+                    <span class="status-indicator {% if session.get('network_status') == 'offline' %}status-offline{% else %}status-online{% endif %}"></span>
+                    <span id="network-status-text">
+                        {{ 'Offline' if session.get('network_status') == 'offline' else 'Online' }}
+                    </span>
+                </button>
+                
+                <!-- Active Role Toggle (Receptionist / Doctor) -->
+                <div class="btn-utility role-selector-pill">
+                    <i class="fa-solid fa-shield-halved" style="color: var(--color-primary);"></i>
+                    <select onchange="changeActiveRole(this.value)">
+                        <option value="receptionist" {% if session.get('active_role') == 'receptionist' %}selected{% endif %}>Receptionist</option>
+                        <option value="doctor" {% if session.get('active_role') == 'doctor' %}selected{% endif %}>Doctor</option>
+                    </select>
+                </div>
+                {% endif %}
+                
+                <div class="quick-toggles">
+                    <!-- Language Toggle EN/HI -->
+                    <button onclick="toggleLanguage()" class="btn-circle" title="Switch Language / भाषा बदलें">
+                        <i class="fa-solid fa-language"></i>
+                        <span id="current-lang-label" style="font-size: 11px; font-weight: 700; margin-left: 2px;">EN</span>
+                    </button>
+                    
+                    <!-- Theme Toggle -->
+                    <button onclick="toggleTheme()" class="btn-circle" title="Toggle Light/Dark Theme">
+                        <i class="fa-solid fa-circle-half-stroke"></i>
+                    </button>
+                    
+                    {% if session.get('clinic_id') %}
+                    <!-- Logout -->
+                    <a href="{{ url_for('auth.logout') }}" class="btn-circle logout-btn" title="Logout">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Body Content -->
+        <main style="flex: 1; display: flex; flex-direction: column;">
+            {% block content %}{% endblock %}
+        </main>
+        
+    </div>
+
+    <!-- Core Javascript Code -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

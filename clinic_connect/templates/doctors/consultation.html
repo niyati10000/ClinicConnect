@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block title %}ClinicConnect - Active Consultation / सक्रिय परामर्श{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <h1 class="trn" data-en="Consultation Room" data-hi="परामर्श कक्ष" style="font-family: var(--font-heading); font-size: 28px; font-weight: 700;">Consultation Room</h1>
+    <p style="color: var(--text-secondary); font-size: 14px;">
+        <span class="trn" data-en="Active Case: " data-hi="सक्रिय केस: ">Active Case: </span> 
+        <strong>{{ patient.name }}</strong> | 
+        <span class="trn" data-en="Age/Gender: " data-hi="उम्र/लिंग: ">Age/Gender: </span> {{ patient.age or 'N/A' }}/{{ patient.gender or 'N/A' }}
+    </p>
+</div>
+
+<div class="bento-grid">
+    <!-- Main Consultation Card -->
+    <div class="bento-card span-12">
+        <form action="{{ url_for('doctors.consultation', appointment_id=appt.appointment_id) }}" method="POST" id="consultation-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <!-- 1. Vitals logging section -->
+            <h3 class="trn" data-en="1. Patient Vitals" data-hi="1. रोगी के वाइटल्स" style="font-family: var(--font-heading); font-size: 16px; margin-bottom: 15px; color: var(--color-primary);">1. Patient Vitals</h3>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px;">
+                <div class="form-group">
+                    <label for="bp" class="trn" data-en="Blood Pressure (mmHg)" data-hi="रक्तचाप (mmHg)">Blood Pressure (mmHg)</label>
+                    <input type="text" id="bp" name="bp" class="form-control" placeholder="e.g. 120/80">
+                </div>
+                <div class="form-group">
+                    <label for="hr" class="trn" data-en="Heart Rate (bpm)" data-hi="हृदय गति (bpm)">Heart Rate (bpm)</label>
+                    <input type="number" id="hr" name="hr" class="form-control" placeholder="e.g. 72" min="30" max="250">
+                </div>
+                <div class="form-group">
+                    <label for="temp" class="trn" data-en="Temperature (°F)" data-hi="तापमान (°F)">Temperature (°F)</label>
+                    <input type="number" id="temp" name="temp" class="form-control" placeholder="e.g. 98.6" step="0.1" min="90" max="115">
+                </div>
+                <div class="form-group">
+                    <label for="weight" class="trn" data-en="Weight (kg)" data-hi="वजन (kg)">Weight (kg)</label>
+                    <input type="number" id="weight" name="weight" class="form-control" placeholder="e.g. 70" step="0.1" min="1" max="300">
+                </div>
+            </div>
+            
+            <!-- 2. Symptoms & Diagnosis -->
+            <h3 class="trn" data-en="2. Assessment & Diagnosis" data-hi="2. मूल्यांकन और निदान" style="font-family: var(--font-heading); font-size: 16px; margin-bottom: 15px; color: var(--color-primary); border-top: 1px solid var(--border-color); padding-top: 20px;">2. Assessment & Diagnosis</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px;">
+                <div class="form-group">
+                    <label for="symptoms" class="trn" data-en="Presenting Symptoms & Clinical Notes" data-hi="लक्षण और नैदानिक टिप्पणियां">Presenting Symptoms & Clinical Notes</label>
+                    <textarea id="symptoms" name="symptoms" class="form-control trn" data-en="Describe key complaints (e.g. chest tight, fever)..." data-hi="मुख्य शिकायतों का वर्णन करें..." rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="diagnosis" class="trn" data-en="Final Diagnosis (ICD-10 / Clinical)" data-hi="अंतिम निदान (आईसीडी -10 / नैदानिक)">Final Diagnosis (ICD-10 / Clinical)</label>
+                    <input type="text" id="diagnosis" name="diagnosis" class="form-control trn" data-en="Enter diagnosis (e.g. Acute Bronchitis, Essential Hypertension)" data-hi="निदान दर्ज करें..." placeholder="Enter diagnosis (e.g. Acute Bronchitis)" list="common-diagnoses" required>
+                    <datalist id="common-diagnoses">
+                        <option value="Essential Hypertension">
+                        <option value="Type 2 Diabetes Mellitus">
+                        <option value="Acute Upper Respiratory Infection">
+                        <option value="Gastro-esophageal Reflux Disease (GERD)">
+                        <option value="Osteoarthritis">
+                        <option value="Acute Bronchitis">
+                        <option value="Allergic Rhinitis">
+                        <option value="Migraine">
+                    </datalist>
+                </div>
+            </div>
+            
+            <!-- 3. Medications -->
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 20px; margin-bottom: 15px;">
+                <h3 class="trn" data-en="3. Prescribe Medications" data-hi="3. दवाएं लिखें" style="font-family: var(--font-heading); font-size: 16px; color: var(--color-primary);">3. Prescribe Medications</h3>
+                <button type="button" onclick="addMedicationRow()" class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">
+                    <i class="fa-solid fa-plus"></i>
+                    <span class="trn" data-en="Add Medicine" data-hi="दवा जोड़ें">Add Medicine</span>
+                </button>
+            </div>
+            
+            <div class="table-responsive" style="margin-bottom: 25px;">
+                <table class="clinic-table" id="medications-table">
+                    <thead>
+                        <tr>
+                            <th class="trn" data-en="Medicine Name (From Inventory)" data-hi="दवा का नाम">Medicine Name (From Inventory)</th>
+                            <th class="trn" data-en="Dosage" data-hi="खुराक">Dosage</th>
+                            <th class="trn" data-en="Frequency" data-hi="आवृत्ति">Frequency</th>
+                            <th class="trn" data-en="Duration" data-hi="अवधि">Duration</th>
+                            <th style="width: 50px; text-align: center;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="medications-body">
+                        <!-- Default single row -->
+                        <tr class="med-row">
+                            <td>
+                                <input type="text" name="med_name[]" class="form-control trn" data-en="Select or type drug name" data-hi="दवा का नाम चुनें या टाइप करें" placeholder="Select or type drug name" list="clinic-inventory" required>
+                            </td>
+                            <td>
+                                <input type="text" name="med_dosage[]" class="form-control" placeholder="e.g. 1 tablet, 5ml" required>
+                            </td>
+                            <td>
+                                <select name="med_frequency[]" class="form-control">
+                                    <option value="Once daily (morning)" class="trn" data-en="Once daily (morning)" data-hi="दिन में एक बार (सुबह)">Once daily (morning)</option>
+                                    <option value="Twice daily (12h)" class="trn" data-en="Twice daily (12h)" data-hi="दिन में दो बार (12 घंटे)">Twice daily (12h)</option>
+                                    <option value="Thrice daily (8h)" class="trn" data-en="Thrice daily (8h)" data-hi="दिन में तीन बार (8 घंटे)">Thrice daily (8h)</option>
+                                    <option value="As needed (SOS)" class="trn" data-en="As needed (SOS)" data-hi="आवश्यकतानुसार (SOS)">As needed (SOS)</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="text" name="med_duration[]" class="form-control" placeholder="e.g. 5 days, 10 days" required>
+                            </td>
+                            <td style="text-align: center;">
+                                <button type="button" onclick="removeMedicationRow(this)" class="btn btn-secondary btn-icon" style="color: var(--color-danger); border-color: rgba(239, 68, 68, 0.1); background: rgba(239, 68, 68, 0.05);">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <datalist id="clinic-inventory">
+                {% for choice in med_choices %}
+                    <option value="{{ choice }}">
+                {% endfor %}
+            </datalist>
+            
+            <div style="display: flex; gap: 15px; border-top: 1px solid var(--border-color); padding-top: 20px;">
+                <button type="submit" class="btn btn-primary" style="flex: 1;">
+                    <i class="fa-solid fa-file-signature"></i>
+                    <span class="trn" data-en="Complete Consultation & Save Prescription" data-hi="परामर्श पूर्ण करें और पर्चा सहेजें">Complete Consultation & Save Prescription</span>
+                </button>
+                <a href="{{ url_for('patients.details', patient_id=patient.patient_id) }}" class="btn btn-secondary" style="flex: 1; text-align: center;">
+                    <span class="trn" data-en="Cancel" data-hi="रद्द करें">Cancel</span>
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function addMedicationRow() {
+    const tbody = document.getElementById('medications-body');
+    const newRow = document.createElement('tr');
+    newRow.className = 'med-row';
+    
+    // Copy HTML elements for row
+    newRow.innerHTML = `
+        <td>
+            <input type="text" name="med_name[]" class="form-control trn" data-en="Select or type drug name" data-hi="दवा का नाम चुनें या टाइप करें" placeholder="Select or type drug name" list="clinic-inventory" required>
+        </td>
+        <td>
+            <input type="text" name="med_dosage[]" class="form-control" placeholder="e.g. 1 tablet, 5ml" required>
+        </td>
+        <td>
+            <select name="med_frequency[]" class="form-control">
+                <option value="Once daily (morning)">Once daily (morning)</option>
+                <option value="Twice daily (12h)">Twice daily (12h)</option>
+                <option value="Thrice daily (8h)">Thrice daily (8h)</option>
+                <option value="As needed (SOS)">As needed (SOS)</option>
+            </select>
+        </td>
+        <td>
+            <input type="text" name="med_duration[]" class="form-control" placeholder="e.g. 5 days, 10 days" required>
+        </td>
+        <td style="text-align: center;">
+            <button type="button" onclick="removeMedicationRow(this)" class="btn btn-secondary btn-icon" style="color: var(--color-danger); border-color: rgba(239, 68, 68, 0.1); background: rgba(239, 68, 68, 0.05);">
+                <i class="fa-solid fa-trash"></i>
+            </button>
+        </td>
+    `;
+    
+    tbody.appendChild(newRow);
+    
+    // Re-apply language translations
+    const savedLang = localStorage.getItem('clinic-lang') || 'en';
+    applyLanguage(savedLang);
+}
+
+function removeMedicationRow(btn) {
+    const tbody = document.getElementById('medications-body');
+    const row = btn.closest('tr');
+    
+    // Keep at least one row
+    if (tbody.querySelectorAll('.med-row').length > 1) {
+        row.remove();
+    } else {
+        alert("At least one prescribed medicine row is required! / कम से कम एक दवा आवश्यक है।");
+    }
+}
+</script>
+{% endblock %}

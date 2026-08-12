@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}ClinicConnect - Register Clinic / क्लिनिक पंजीकरण{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <!-- Floating Glass Switchers -->
+    <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 12px; background: var(--bg-surface); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border: 1px solid var(--border-glass); padding: 6px 16px; border-radius: 50px; box-shadow: var(--shadow-sm); z-index: 1002;">
+        <button onclick="toggleLanguage()" class="lang-toggle" title="Switch Language / भाषा बदलें" style="font-size: 16px;">
+            <i class="fa-solid fa-language"></i>
+            <span style="font-size: 12px; font-weight: 700; margin-left: 4px;" id="current-lang-label">EN</span>
+        </button>
+        <button onclick="toggleTheme()" class="theme-toggle" title="Toggle Theme" style="font-size: 16px;">
+            <i class="fa-solid fa-circle-half-stroke"></i>
+        </button>
+    </div>
+
+    <div class="auth-card" style="max-width: 550px; margin: 40px auto;">
+        <div class="auth-header">
+            <h2 class="trn" data-en="Create Clinic Account" data-hi="क्लिनिक खाता बनाएं">Create Clinic Account</h2>
+            <p class="trn" data-en="Register your organization to access secure partitions" data-hi="पंजीकरण करें और सुरक्षित डैशबोर्ड प्राप्त करें">Register your organization to access secure partitions</p>
+        </div>
+        
+        <form action="{{ url_for('auth.register') }}" method="POST" style="display: flex; flex-direction: column; gap: 16px;">
+            <input type="hidden" name="csrf_token" value="{{ session.get('csrf_token') }}">
+            
+            <div class="form-group">
+                <label for="name" class="trn" data-en="Clinic Name (Required)" data-hi="क्लिनिक का नाम (आवश्यक)">Clinic Name (Required)</label>
+                <input type="text" id="name" name="name" class="form-control trn" data-en="e.g. City General Clinic" data-hi="क्लिनिक का नाम दर्ज करें" placeholder="e.g. City General Clinic" required>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group">
+                    <label for="license_code" class="trn" data-en="Desired License Code (Required)" data-hi="लाइसेंस कोड (आवश्यक)">Desired License Code (Required)</label>
+                    <input type="text" id="license_code" name="license_code" class="form-control trn" data-en="e.g. cityclinic-12" data-hi="उदा. cityclinic-12" placeholder="e.g. cityclinic-12" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password" class="trn" data-en="Account Password (Required)" data-hi="पासवर्ड (आवश्यक)">Account Password (Required)</label>
+                    <input type="password" id="password" name="password" class="form-control trn" data-en="Enter password" data-hi="पासवर्ड दर्ज करें" placeholder="Enter password" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="address" class="trn" data-en="Clinic Address" data-hi="क्लिनिक का पता">Clinic Address</label>
+                <input type="text" id="address" name="address" class="form-control trn" data-en="Enter physical location" data-hi="स्थान का विवरण दर्ज करें" placeholder="Enter physical location">
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group">
+                    <label for="contact" class="trn" data-en="Contact Phone Number" data-hi="संपर्क फोन नंबर">Contact Phone Number</label>
+                    <input type="tel" id="contact" name="contact" class="form-control trn" data-en="e.g. +91 99999 99999" data-hi="फोन नंबर" placeholder="e.g. +91 99999 99999">
+                </div>
+                
+                <div class="form-group">
+                    <label for="email" class="trn" data-en="Business Email Address" data-hi="व्यवसाय ईमेल पता">Business Email Address</label>
+                    <input type="email" id="email" name="email" class="form-control trn" data-en="e.g. info@clinic.com" data-hi="ईमेल पता" placeholder="e.g. info@clinic.com">
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+                <i class="fa-solid fa-user-plus"></i>
+                <span class="trn" data-en="Register & Log In" data-hi="पंजीकरण करें और लॉगिन करें">Register & Log In</span>
+            </button>
+        </form>
+        
+        <div style="text-align: center; font-size: 13.5px; color: var(--text-secondary); border-top: 1px dashed var(--border-color); padding-top: 15px; margin-top: 10px;">
+            <span class="trn" data-en="Already registered?" data-hi="पहले से पंजीकृत हैं?">Already registered? </span>
+            <a href="{{ url_for('auth.login') }}" style="color: var(--color-primary); font-weight: 700;" class="trn" data-en="Login Here" data-hi="यहाँ लॉगिन करें">Login Here</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,9 @@
+flask>=2.3.3
+pandas
+twilio
+flask-sqlalchemy
+python-dotenv
+pytest
+gunicorn>=21.2.0
+psycopg2-binary>=2.9.9
+waitress>=2.1.2

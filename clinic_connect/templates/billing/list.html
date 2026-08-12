@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}ClinicConnect - Billing Control / बिलिंग नियंत्रण{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <h1 class="trn" data-en="Billing & Invoicing" data-hi="बिलिंग और इनवॉइस" style="font-family: var(--font-heading); font-size: 28px; font-weight: 700;">Billing & Invoicing</h1>
+    <p class="trn" data-en="Manage patient payments and clinic financials" data-hi="रोगी भुगतान और क्लिनिक वित्त प्रबंधित करें" style="color: var(--text-secondary); font-size: 14px;">Manage patient payments and clinic financials</p>
+</div>
+
+<!-- Bento Grid Stats for Billing -->
+<div class="bento-grid">
+    <!-- Stat 1: Total Revenue -->
+    <div class="bento-card span-3 stat-widget" style="background: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.1);">
+        <div class="stat-info">
+            <h3 style="color: var(--color-success);">₹{{ total_revenue }}</h3>
+            <p class="trn" data-en="Collected Revenue" data-hi="एकत्रित राजस्व">Collected Revenue</p>
+        </div>
+        <div class="stat-icon" style="background: rgba(16, 185, 129, 0.15); color: var(--color-success);">
+            <i class="fa-solid fa-cash-register"></i>
+        </div>
+    </div>
+    
+    <!-- Stat 2: Pending Revenue -->
+    <div class="bento-card span-3 stat-widget" style="background: rgba(245, 158, 11, 0.05); border-color: rgba(245, 158, 11, 0.1);">
+        <div class="stat-info">
+            <h3 style="color: var(--color-warning);">₹{{ pending_revenue }}</h3>
+            <p class="trn" data-en="Outstanding Revenue" data-hi="बकाया राजस्व">Outstanding Revenue</p>
+        </div>
+        <div class="stat-icon" style="background: rgba(245, 158, 11, 0.15); color: var(--color-warning);">
+            <i class="fa-solid fa-hourglass-half"></i>
+        </div>
+    </div>
+    
+    <!-- Stat 3: Paid Invoices Count -->
+    <div class="bento-card span-3 stat-widget">
+        <div class="stat-info">
+            <h3>{{ paid_count }}</h3>
+            <p class="trn" data-en="Paid Invoices" data-hi="भुगतान इनवॉइस">Paid Invoices</p>
+        </div>
+        <div class="stat-icon">
+            <i class="fa-solid fa-circle-check"></i>
+        </div>
+    </div>
+    
+    <!-- Stat 4: Pending Invoices Count -->
+    <div class="bento-card span-3 stat-widget">
+        <div class="stat-info">
+            <h3>{{ pending_count }}</h3>
+            <p class="trn" data-en="Pending Invoices" data-hi="लंबित इनवॉइस">Pending Invoices</p>
+        </div>
+        <div class="stat-icon" style="background: rgba(239, 68, 68, 0.15); color: var(--color-danger);">
+            <i class="fa-solid fa-circle-exclamation"></i>
+        </div>
+    </div>
+</div>
+
+<!-- Invoice List -->
+<div class="bento-grid">
+    <div class="bento-card span-12" style="padding: 0; overflow: hidden;">
+        <div class="table-responsive">
+            <table class="clinic-table">
+                <thead>
+                    <tr>
+                        <th class="trn" data-en="Invoice ID" data-hi="इनवॉइस आईडी">Invoice ID</th>
+                        <th class="trn" data-en="Patient" data-hi="मरीज">Patient</th>
+                        <th class="trn" data-en="Consultation Fee" data-hi="परामर्श शुल्क">Consultation Fee</th>
+                        <th class="trn" data-en="Medicine Fee" data-hi="दवा शुल्क">Medicine Fee</th>
+                        <th class="trn" data-en="Total Amount" data-hi="कुल राशि">Total Amount</th>
+                        <th class="trn" data-en="Date / Time" data-hi="दिनांक / समय">Date / Time</th>
+                        <th class="trn" data-en="Status" data-hi="स्थिति">Status</th>
+                        <th class="trn" data-en="Actions" data-hi="कार्रवाई" style="text-align: right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for inv in invoices %}
+                    <tr>
+                        <td><strong>#{{ inv.invoice_id }}</strong></td>
+                        <td>
+                            <a href="{{ url_for('patients.details', patient_id=inv.patient.patient_id) }}" style="font-weight: 600; color: var(--color-primary);">
+                                {{ inv.patient.name }}
+                            </a>
+                        </td>
+                        <td>₹{{ inv.consultation_fee }}</td>
+                        <td>₹{{ inv.medicine_fee }}</td>
+                        <td><strong style="color: var(--color-primary);">₹{{ inv.total_amount }}</strong></td>
+                        <td>{{ inv.created_at.strftime('%d-%b-%Y %I:%M %p') }}</td>
+                        <td>
+                            <span class="badge {{ 'badge-success' if inv.status == 'Paid' else 'badge-warning' }}">
+                                {{ inv.status }}
+                            </span>
+                        </td>
+                        <td style="text-align: right; display: flex; justify-content: flex-end; gap: 8px;">
+                            {% if inv.status == 'Pending' %}
+                            <form action="{{ url_for('billing.record_payment', invoice_id=inv.invoice_id) }}" method="POST" style="display: inline;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                <button type="submit" class="btn btn-primary" style="padding: 6px 12px; font-size: 12px; background: var(--color-success); box-shadow: none;">
+                                    <i class="fa-solid fa-wallet"></i>
+                                    <span class="trn" data-en="Pay" data-hi="भुगतान">Pay</span>
+                                </button>
+                            </form>
+                            {% endif %}
+                            
+                            <a href="{{ url_for('billing.print_invoice', invoice_id=inv.invoice_id) }}" target="_blank" class="btn btn-secondary btn-icon" title="Print Bill Receipt">
+                                <i class="fa-solid fa-print"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 40px; color: var(--text-secondary);">
+                            <i class="fa-solid fa-file-invoice" style="font-size: 40px; margin-bottom: 10px; color: var(--text-muted);"></i>
+                            <p class="trn" data-en="No billing statements available." data-hi="कोई बिलिंग विवरण उपलब्ध नहीं है।">No billing statements available.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}ClinicConnect - Add Doctor / डॉक्टर पंजीकरण{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <a href="{{ url_for('doctors.index') }}" class="btn btn-secondary" style="margin-bottom: 15px;">
+        <i class="fa-solid fa-arrow-left-long"></i>
+        <span class="trn" data-en="Back to Directory" data-hi="निर्देशिका पर वापस">Back to Directory</span>
+    </a>
+    <h1 class="trn" data-en="Add New Doctor" data-hi="नया डॉक्टर जोड़ें" style="font-family: var(--font-heading); font-size: 28px; font-weight: 700;">Add New Doctor</h1>
+    <p class="trn" data-en="Register medical staff and set shift availability" data-hi="चिकित्सा कर्मचारियों को पंजीकृत करें और शिफ्ट उपलब्धता निर्धारित करें" style="color: var(--text-secondary); font-size: 14px;">Register medical staff and set shift availability</p>
+</div>
+
+<div class="bento-grid">
+    <div class="bento-card span-12">
+        <form action="{{ url_for('doctors.add') }}" method="POST" style="display: flex; flex-direction: column; gap: 16px;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <div class="form-group">
+                <label for="name" class="trn" data-en="Doctor Name (Required)" data-hi="डॉक्टर का नाम (आवश्यक)">Doctor Name (Required)</label>
+                <input type="text" id="name" name="name" class="form-control trn" data-en="Enter doctor's full name (e.g. Dr. Amit Patel)" data-hi="डॉक्टर का पूरा नाम दर्ज करें" placeholder="Enter doctor's full name (e.g. Dr. Amit Patel)" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="specialization" class="trn" data-en="Specialization" data-hi="विशेषज्ञता">Specialization</label>
+                <input type="text" id="specialization" name="specialization" class="form-control trn" data-en="e.g. Pediatrician, Dentist, Cardiologist" data-hi="उदा. बाल रोग विशेषज्ञ, दंत चिकित्सक, हृदय रोग विशेषज्ञ" placeholder="e.g. Pediatrician, Dentist, Cardiologist">
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group">
+                    <label for="working_hours_start" class="trn" data-en="Working Hours Start" data-hi="कार्य समय शुरू">Working Hours Start</label>
+                    <input type="time" id="working_hours_start" name="working_hours_start" class="form-control" value="09:00" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="working_hours_end" class="trn" data-en="Working Hours End" data-hi="कार्य समय समाप्त">Working Hours End</label>
+                    <input type="time" id="working_hours_end" name="working_hours_end" class="form-control" value="17:00" required>
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 12px; margin-top: 10px;">
+                <button type="submit" class="btn btn-primary" style="flex: 1;">
+                    <i class="fa-solid fa-save"></i>
+                    <span class="trn" data-en="Register Doctor" data-hi="डॉक्टर पंजीकृत करें">Register Doctor</span>
+                </button>
+                <a href="{{ url_for('doctors.index') }}" class="btn btn-secondary" style="flex: 1; text-align: center;">
+                    <span class="trn" data-en="Cancel" data-hi="रद्द करें">Cancel</span>
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

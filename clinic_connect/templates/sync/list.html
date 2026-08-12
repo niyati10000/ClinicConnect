@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block title %}ClinicConnect - Sync Center / सिंक केंद्र{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+    <div>
+        <h1 class="trn" data-en="Sync & Messaging Hub" data-hi="सिंक और संदेश हब" style="font-family: var(--font-heading); font-size: 28px; font-weight: 700;">Sync & Messaging Hub</h1>
+        <p class="trn" data-en="Monitor offline queues and synchronize SMS reminders" data-hi="ऑफ़लाइन कतारों की निगरानी करें और एसएमएस अनुस्मारक सिंक करें" style="color: var(--text-secondary); font-size: 14px;">Monitor offline queues and synchronize SMS reminders</p>
+    </div>
+    
+    <!-- Dynamic Sync Trigger -->
+    <div>
+        {% if pending_count > 0 %}
+            {% if session.get('network_status') == 'offline' %}
+                <button class="btn btn-secondary" disabled style="cursor: not-allowed; opacity: 0.6;" title="Connect Online to Sync">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <span class="trn" data-en="Sync Pending (Offline)" data-hi="सिंक लंबित (ऑफ़लाइन)">Sync Pending (Offline)</span>
+                </button>
+            {% else %}
+                <button onclick="triggerSyncQueue()" class="btn btn-primary" id="sync-now-btn">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <span class="trn" data-en="Sync Now" data-hi="अभी सिंक करें">Sync Now</span>
+                </button>
+            {% endif %}
+        {% else %}
+            <button class="btn btn-secondary" disabled style="cursor: default;" title="Queue Empty">
+                <i class="fa-solid fa-circle-check" style="color: var(--color-success);"></i>
+                <span class="trn" data-en="Queue Synced" data-hi="कतार सिंक है">Queue Synced</span>
+            </button>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Offline Mode Warning Alert Banner -->
+{% if session.get('network_status') == 'offline' %}
+<div style="background: rgba(239, 68, 68, 0.08); border: 1px dashed var(--color-danger); color: var(--color-danger); padding: 15px 25px; border-radius: var(--border-radius-sm); margin-bottom: 20px; display: flex; align-items: center; gap: 15px;">
+    <i class="fa-solid fa-wifi-slash" style="font-size: 24px; animation: pulse 2s infinite;"></i>
+    <div>
+        <strong class="trn" data-en="System is Currently Disconnected (Offline Mode)" data-hi="सिस्टम वर्तमान में ऑफ़लाइन है">System is Currently Disconnected (Offline Mode)</strong>
+        <p class="trn" data-en="All newly booked appointment confirmations and cancellations are being queued locally. Switch connection status to 'Online' in the header to dispatch." 
+           data-hi="सभी नए अपॉइंटमेंट पुष्टिकरण स्थानीय रूप से संग्रहीत किए जा रहे हैं। संदेश भेजने के लिए हेडर में स्थिति 'ऑनलाइन' पर सेट करें।" style="font-size: 13px; margin-top: 4px; opacity: 0.9;">
+            All newly booked appointment confirmations and cancellations are being queued locally. Switch connection status to 'Online' in the header to dispatch.
+        </p>
+    </div>
+</div>
+{% endif %}
+
+<!-- Syncing Progress Indicator (hidden by default) -->
+<div id="sync-progress-card" class="bento-card span-12" style="display: none; margin-bottom: 20px; align-items: center; justify-content: center; gap: 15px; padding: 25px;">
+    <div style="width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 8px; text-align: center;">
+        <strong id="sync-progress-status" class="trn" data-en="Synchronizing notifications queue..." data-hi="अधिसूचना कतार सिंक की जा रही है...">Synchronizing notifications queue...</strong>
+        <div style="background: var(--bg-base); height: 10px; width: 100%; border-radius: 5px; overflow: hidden; border: 1px solid var(--border-color);">
+            <div id="sync-progress-bar" style="background: var(--color-primary); height: 100%; width: 0%; transition: width 0.15s ease;"></div>
+        </div>
+        <span id="sync-progress-percent" style="font-size: 12px; font-weight: 700; color: var(--text-secondary);">0%</span>
+    </div>
+</div>
+
+<!-- Bento Grid Stats for Sync -->
+<div class="bento-grid">
+    <!-- Stat 1: Pending Queue -->
+    <div class="bento-card span-6 stat-widget" style="{% if pending_count > 0 %}background: rgba(245, 158, 11, 0.05); border-color: rgba(245, 158, 11, 0.1);{% endif %}">
+        <div class="stat-info">
+            <h3 id="stat-pending" style="{% if pending_count > 0 %}color: var(--color-warning);{% endif %}">{{ pending_count }}</h3>
+            <p class="trn" data-en="Messages Pending Sync" data-hi="सिंक लंबित संदेश">Messages Pending Sync</p>
+        </div>
+        <div class="stat-icon" style="background: rgba(245, 158, 11, 0.15); color: var(--color-warning);">
+            <i class="fa-solid fa-server"></i>
+        </div>
+    </div>
+    
+    <!-- Stat 2: Sent logs count -->
+    <div class="bento-card span-6 stat-widget">
+        <div class="stat-info">
+            <h3>{{ sent_count }}</h3>
+            <p class="trn" data-en="Sent SMS Confirmations" data-hi="भेजे गए एसएमएस">Sent SMS Confirmations</p>
+        </div>
+        <div class="stat-icon" style="background: rgba(16, 185, 129, 0.15); color: var(--color-success);">
+            <i class="fa-solid fa-paper-plane"></i>
+        </div>
+    </div>
+</div>
+
+<!-- Sync Queue Logs Grid -->
+<div class="bento-grid">
+    <div class="bento-card span-12" style="padding: 0; overflow: hidden;">
+        <div class="table-responsive">
+            <table class="clinic-table">
+                <thead>
+                    <tr>
+                        <th class="trn" data-en="Log ID" data-hi="लॉग आईडी">Log ID</th>
+                        <th class="trn" data-en="Recipient" data-hi="प्राप्तकर्ता">Recipient</th>
+                        <th class="trn" data-en="SMS Message Body" data-hi="संदेश बॉडी">SMS Message Body</th>
+                        <th class="trn" data-en="Created At" data-hi="बनाया गया">Created At</th>
+                        <th class="trn" data-en="Status" data-hi="स्थिति">Status</th>
+                        <th class="trn" data-en="Dispatched At" data-hi="भेजा गया दिनांक">Dispatched At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr>
+                        <td><strong>#{{ log.log_id }}</strong></td>
+                        <td>{{ log.recipient }}</td>
+                        <td>
+                            <span style="font-size: 13.5px; color: var(--text-primary);">
+                                {{ log.message_body }}
+                            </span>
+                        </td>
+                        <td>{{ log.created_at.strftime('%d-%b %I:%M %p') }}</td>
+                        <td>
+                            <span class="badge {{ 'badge-success' if log.status == 'Sent' else 'badge-warning' }}">
+                                {{ log.status }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if log.synced_at %}
+                                {{ log.synced_at.strftime('%d-%b %I:%M %p') }}
+                            {% else %}
+                                <span style="font-style: italic; color: var(--text-muted);">Queued offline</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 40px; color: var(--text-secondary);">
+                            <i class="fa-solid fa-share-nodes" style="font-size: 40px; margin-bottom: 10px; color: var(--text-muted);"></i>
+                            <p class="trn" data-en="No message logs recorded." data-hi="कोई संदेश लॉग रिकॉर्ड नहीं है।">No message logs recorded.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function triggerSyncQueue() {
+    const progressCard = document.getElementById('sync-progress-card');
+    const progressBar = document.getElementById('sync-progress-bar');
+    const progressPercent = document.getElementById('sync-progress-percent');
+    const statusText = document.getElementById('sync-progress-status');
+    const syncBtn = document.getElementById('sync-now-btn');
+    
+    if (syncBtn) {
+        syncBtn.disabled = true;
+        syncBtn.style.opacity = '0.5';
+    }
+    
+    progressCard.style.display = 'flex';
+    progressBar.style.width = '0%';
+    progressPercent.textContent = '0%';
+    
+    // Simulate frontend loading progress bar (UX visual effect)
+    let width = 0;
+    const interval = setInterval(() => {
+        if (width >= 90) {
+            clearInterval(interval);
+            // Execute actual database sync request
+            executeBackendSync();
+        } else {
+            width += 15;
+            progressBar.style.width = width + '%';
+            progressPercent.textContent = width + '%';
+        }
+    }, 150);
+    
+    function executeBackendSync() {
+        fetch('/sync/execute', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                progressBar.style.width = '100%';
+                progressPercent.textContent = '100%';
+                statusText.textContent = data.message;
+                
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            } else {
+                statusText.style.color = 'var(--color-danger)';
+                statusText.textContent = data.message;
+                if (syncBtn) {
+                    syncBtn.disabled = false;
+                    syncBtn.style.opacity = '1';
+                }
+            }
+        })
+        .catch(err => {
+            console.error("Error executing sync: ", err);
+            statusText.style.color = 'var(--color-danger)';
+            statusText.textContent = "Sync failure occurred.";
+            if (syncBtn) {
+                syncBtn.disabled = false;
+                syncBtn.style.opacity = '1';
+            }
+        });
+    }
+}
+</script>
+{% endblock %}

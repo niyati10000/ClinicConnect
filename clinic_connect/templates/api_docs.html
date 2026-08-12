@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+
+{% block title %}ClinicConnect - Developer API Portal / एपीआई प्रलेखन{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <h1 class="trn" data-en="Developer API Documentation" data-hi="डेवलपर एपीआई प्रलेखन" style="font-family: var(--font-heading); font-size: 28px; font-weight: 700;">Developer API Documentation</h1>
+    <p class="trn" data-en="Detailed references of platform endpoints and schemas" data-hi="प्लेटफ़ॉर्म समापन बिंदुओं और स्कीमा के विस्तृत संदर्भ" style="color: var(--text-secondary); font-size: 14px;">Detailed references of platform endpoints and schemas</p>
+</div>
+
+<div class="bento-grid">
+    <!-- Intro Card -->
+    <div class="bento-card span-12">
+        <h3 class="trn" data-en="Getting Started" data-hi="शुरुआत करना" style="font-family: var(--font-heading); font-size: 18px; font-weight: 700; color: var(--color-primary); margin-bottom: 10px;">Getting Started</h3>
+        <p class="trn" data-en="ClinicConnect operates as an API-first multi-tenant system. Authentication is session-based. All write endpoints validate security tokens (CSRF) and restrict queries to the authenticated clinic's database partition." 
+           data-hi="क्लिनिककनेक्ट एक एपीआई-प्रथम बहु-किरायेदार प्रणाली के रूप में काम करता है। सभी राइट समापन बिंदु सुरक्षा टोकन (सीएसआरएफ) को मान्य करते हैं।">
+            ClinicConnect operates as an API-first multi-tenant system. Authentication is session-based. All write endpoints validate security tokens (CSRF) and restrict queries to the authenticated clinic's database partition.
+        </p>
+    </div>
+</div>
+
+<style>
+    .api-item {
+        background: var(--bg-surface-solid);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius-sm);
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: var(--shadow-sm);
+    }
+    [data-theme="dark"] .api-item {
+        background: #1f2937;
+    }
+    .method-badge {
+        font-family: var(--font-heading);
+        font-weight: 800;
+        font-size: 11px;
+        padding: 4px 10px;
+        border-radius: 4px;
+        color: white;
+        text-transform: uppercase;
+        margin-right: 12px;
+        display: inline-block;
+    }
+    .method-get { background-color: #10b981; }
+    .method-post { background-color: #4f46e5; }
+    
+    .api-url {
+        font-family: monospace;
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+    
+    .schema-header {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        margin-top: 15px;
+        margin-bottom: 6px;
+    }
+    
+    pre {
+        background: var(--bg-base);
+        padding: 12px 16px;
+        border-radius: 6px;
+        font-family: monospace;
+        font-size: 12.5px;
+        overflow-x: auto;
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+    }
+</style>
+
+<!-- API Details Grid -->
+<div class="bento-grid">
+    <div class="bento-card span-12">
+        
+        <!-- API 1: Stats -->
+        <div class="api-item">
+            <div>
+                <span class="method-badge method-get">GET</span>
+                <span class="api-url">/api/stats</span>
+            </div>
+            <p style="font-size: 13.5px; color: var(--text-secondary); margin-top: 10px;" class="trn" 
+               data-en="Fetch active summary metrics (patients count, available doctors count, today's appointments count)."
+               data-hi="सक्रिय सारांश मीट्रिक प्राप्त करें (मरीजों की संख्या, उपलब्ध डॉक्टरों की संख्या, आज के अपॉइंटमेंट)।">
+                Fetch active summary metrics (patients count, available doctors count, today's appointments count).
+            </p>
+            
+            <div class="schema-header">Response Example (JSON)</div>
+            <pre>{
+  "patients": 6,
+  "doctors": 5,
+  "appointments": 3
+}</pre>
+        </div>
+
+        <!-- API 2: Analytics Data -->
+        <div class="api-item">
+            <div>
+                <span class="method-badge method-get">GET</span>
+                <span class="api-url">/api/analytics-data</span>
+            </div>
+            <p style="font-size: 13.5px; color: var(--text-secondary); margin-top: 10px;" class="trn"
+               data-en="Retrieve detailed data models used to render Chart.js analytics graphs on the home dashboard."
+               data-hi="होम डैशबोर्ड पर चार्ट.जेएस ग्राफ़ प्रस्तुत करने के लिए डेटा प्राप्त करें।">
+                Retrieve detailed data models used to render Chart.js analytics graphs on the home dashboard.
+            </p>
+            
+            <div class="schema-header">Response Example (JSON)</div>
+            <pre>{
+  "registrations": {
+    "labels": ["Jul 25", "Jul 26", "Jul 27"],
+    "data": [2, 1, 3]
+  },
+  "workload": {
+    "labels": ["Dr. Rajesh Kumar", "Dr. Priya Sharma"],
+    "data": [4, 2]
+  },
+  "status": {
+    "labels": ["Completed", "Scheduled"],
+    "data": [2, 3]
+  },
+  "diagnoses": {
+    "labels": ["Essential Hypertension", "Healthy pregnancy"],
+    "data": [1, 1]
+  }
+}</pre>
+        </div>
+
+        <!-- API 3: Available Slots -->
+        <div class="api-item">
+            <div>
+                <span class="method-badge method-get">GET</span>
+                <span class="api-url">/appointments/api/available-slots</span>
+            </div>
+            <p style="font-size: 13.5px; color: var(--text-secondary); margin-top: 10px;" class="trn"
+               data-en="Fetch 30-min scheduling slots for a specific doctor on a chosen date. Flags whether slot is available."
+               data-hi="चुने गए चिकित्सक के लिए किसी चुनी गई तिथि पर 30-मिनट के समय स्लॉट और उनकी उपलब्धता प्राप्त करें।">
+                Fetch 30-min scheduling slots for a specific doctor on a chosen date. Flags whether slot is available.
+            </p>
+            
+            <div class="schema-header">Query Parameters</div>
+            <ul style="padding-left: 20px; font-size: 13px; color: var(--text-secondary); margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px;">
+                <li>`doctor_id` (Integer, Required)</li>
+                <li>`date` (String YYYY-MM-DD, Required)</li>
+            </ul>
+            
+            <div class="schema-header">Response Example (JSON)</div>
+            <pre>{
+  "slots": [
+    { "time": "09:00 AM", "available": true },
+    { "time": "09:30 AM", "available": false },
+    { "time": "10:00 AM", "available": true }
+  ]
+}</pre>
+        </div>
+
+        <!-- API 4: Switch Role -->
+        <div class="api-item">
+            <div>
+                <span class="method-badge method-post">POST</span>
+                <span class="api-url">/auth/switch-role</span>
+            </div>
+            <p style="font-size: 13.5px; color: var(--text-secondary); margin-top: 10px;" class="trn"
+               data-en="Switches active session role levels dynamically. Emulates access tokens mutations."
+               data-hi="सक्रिय सत्र भूमिका स्तरों को गतिशील रूप से बदलता है।">
+                Switches active session role levels dynamically. Emulates access tokens mutations.
+            </p>
+            
+            <div class="schema-header">Request Payload (JSON)</div>
+            <pre>{
+  "role": "receptionist" | "doctor"
+}</pre>
+            
+            <div class="schema-header">Response Example (JSON)</div>
+            <pre>{
+  "success": true,
+  "role": "doctor"
+}</pre>
+        </div>
+
+        <!-- API 5: Sync Logs Execution -->
+        <div class="api-item">
+            <div>
+                <span class="method-badge method-post">POST</span>
+                <span class="api-url">/sync/execute</span>
+            </div>
+            <p style="font-size: 13.5px; color: var(--text-secondary); margin-top: 10px;" class="trn"
+               data-en="Flushes queued offline notifications to the simulated SMS gateway (only when Network Status = Online)."
+               data-hi="ऑफ़लाइन संदेशों को गेटवे पर सिंक करें (केवल जब नेटवर्क 'ऑनलाइन' हो)।">
+                Flushes queued offline notifications to the simulated SMS gateway (only when Network Status = Online).
+            </p>
+            
+            <div class="schema-header">Response Example (JSON)</div>
+            <pre>{
+  "success": true,
+  "synced_count": 1,
+  "message": "Successfully synchronized 1 message(s)!"
+}</pre>
+        </div>
+        
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}ClinicConnect - Register Patient / रोगी पंजीकरण{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <a href="{{ url_for('patients.index') }}" class="btn btn-secondary" style="margin-bottom: 15px;">
+        <i class="fa-solid fa-arrow-left-long"></i>
+        <span class="trn" data-en="Back to Directory" data-hi="निर्देशिका पर वापस">Back to Directory</span>
+    </a>
+    <h1 class="trn" data-en="Register New Patient" data-hi="नया रोगी पंजीकृत करें" style="font-family: var(--font-heading); font-size: 28px; font-weight: 700;">Register New Patient</h1>
+    <p class="trn" data-en="Enter basic details to create a permanent medical record" data-hi="स्थायी चिकित्सा रिकॉर्ड बनाने के लिए बुनियादी विवरण दर्ज करें" style="color: var(--text-secondary); font-size: 14px;">Enter basic details to create a permanent medical record</p>
+</div>
+
+<div class="bento-grid">
+    <div class="bento-card span-12">
+        <form action="{{ url_for('patients.register') }}" method="POST" style="display: flex; flex-direction: column; gap: 16px; max-width: 800px; margin: 0 auto; width: 100%;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <div class="form-group">
+                <label for="name" class="trn" data-en="Full Name (Required)" data-hi="पूरा नाम (आवश्यक)">Full Name (Required)</label>
+                <input type="text" id="name" name="name" class="form-control trn" data-en="Enter patient's full name" data-hi="रोगी का पूरा नाम दर्ज करें" placeholder="Enter patient's full name" required>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group">
+                    <label for="age" class="trn" data-en="Age" data-hi="उम्र">Age</label>
+                    <input type="number" id="age" name="age" class="form-control trn" data-en="Enter age" data-hi="उम्र दर्ज करें" placeholder="Enter age" min="0" max="150">
+                </div>
+                
+                <div class="form-group">
+                    <label for="gender" class="trn" data-en="Gender" data-hi="लिंग">Gender</label>
+                    <select id="gender" name="gender" class="form-control">
+                        <option value="Male" class="trn" data-en="Male" data-hi="पुरुष">Male</option>
+                        <option value="Female" class="trn" data-en="Female" data-hi="महिला">Female</option>
+                        <option value="Other" class="trn" data-en="Other" data-hi="अन्य">Other</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="contact" class="trn" data-en="Contact Number (Required)" data-hi="संपर्क नंबर (आवश्यक)">Contact Number (Required)</label>
+                <input type="tel" id="contact" name="contact" class="form-control trn" data-en="Enter 10-digit mobile number" data-hi="10-अंकीय मोबाइल नंबर दर्ज करें" placeholder="Enter 10-digit mobile number" required pattern="[0-9+ ]{10,15}">
+            </div>
+            
+            <div class="form-group">
+                <label for="issue" class="trn" data-en="Primary Health Issue / Symptoms" data-hi="मुख्य स्वास्थ्य समस्या / लक्षण">Primary Health Issue / Symptoms</label>
+                <textarea id="issue" name="issue" class="form-control trn" data-en="Describe key complaints (e.g. chronic cough, flu, knee pain)..." data-hi="लक्षणों का वर्णन करें..." placeholder="Describe key complaints (e.g. chronic cough, flu, knee pain)..." rows="4"></textarea>
+            </div>
+            
+            <div style="background: var(--bg-base); padding: 16px; border-radius: var(--border-radius-sm); border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <strong class="trn" data-en="Schedule Appointment Immediately?" data-hi="तुरंत अपॉइंटमेंट शेड्यूल करें?">Schedule Appointment Immediately?</strong>
+                    <span class="trn" data-en="Redirect to booking screen after registration" data-hi="पंजीकरण के बाद समय-स्लॉट बुकिंग स्क्रीन पर जाएँ" style="font-size: 12px; color: var(--text-secondary);">Redirect to booking screen after registration</span>
+                </div>
+                <div>
+                    <input type="checkbox" name="book_now" value="yes" id="book_now" style="width: 20px; height: 20px; cursor: pointer;" checked>
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 12px; margin-top: 10px;">
+                <button type="submit" class="btn btn-primary" style="flex: 1;">
+                    <i class="fa-solid fa-save"></i>
+                    <span class="trn" data-en="Register Patient" data-hi="रोगी पंजीकृत करें">Register Patient</span>
+                </button>
+                <a href="{{ url_for('patients.index') }}" class="btn btn-secondary" style="flex: 1; text-align: center;">
+                    <span class="trn" data-en="Cancel" data-hi="रद्द करें">Cancel</span>
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

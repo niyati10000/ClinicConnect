@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}500 - Internal Server Error / तकनीकी त्रुटि{% endblock %}
+{% block content %}
+<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60vh; text-align: center; color: var(--text-secondary);">
+    <i class="fa-solid fa-triangle-exclamation" style="font-size: 80px; color: var(--color-danger); margin-bottom: 20px;"></i>
+    <h2 style="font-family: var(--font-heading); color: var(--text-primary); font-size: 32px; margin-bottom: 10px;">Internal Server Error (500)</h2>
+    <p class="trn" data-en="A server-side database transaction or connection error occurred. Stack traces are suppressed for security." 
+       data-hi="एक आंतरिक सर्वर त्रुटि हुई है। सुरक्षा के लिए तकनीकी विवरण छुपाए गए हैं।">
+        A server-side database transaction or connection error occurred. Stack traces are suppressed for security.
+    </p>
+    <a href="{{ url_for('dashboard.index') }}" class="btn btn-secondary" style="margin-top: 20px;">
+        <i class="fa-solid fa-arrows-rotate"></i> 
+        <span class="trn" data-en="Reload Application" data-hi="एप्लिकेशन पुनः लोड करें">Reload Application</span>
+    </a>
+</div>
+{% endblock %}

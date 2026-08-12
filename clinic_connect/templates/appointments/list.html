@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}ClinicConnect - Appointments / अपॉइंटमेंट सूची{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+    <div>
+        <h1 class="trn" data-en="Clinic Appointments" data-hi="क्लिनिक अपॉइंटमेंट" style="font-family: var(--font-heading); font-size: 28px; font-weight: 700;">Clinic Appointments</h1>
+        <p class="trn" data-en="Track schedules and patient consultation states" data-hi="शेड्यूल और रोगी परामर्श स्थितियों को ट्रैक करें" style="color: var(--text-secondary); font-size: 14px;">Track schedules and patient consultation states</p>
+    </div>
+    
+    {% if session.get('active_role') == 'receptionist' %}
+    <a href="{{ url_for('appointments.book') }}" class="btn btn-primary">
+        <i class="fa-solid fa-calendar-plus"></i>
+        <span class="trn" data-en="Book Appointment" data-hi="अपॉइंटमेंट बुक करें">Book Appointment</span>
+    </a>
+    {% endif %}
+</div>
+
+<!-- Bento List Card -->
+<div class="bento-grid">
+    <div class="bento-card span-12" style="padding: 0; overflow: hidden;">
+        <div class="table-responsive">
+            <table class="clinic-table">
+                <thead>
+                    <tr>
+                        <th class="trn" data-en="ID" data-hi="आईडी">ID</th>
+                        <th class="trn" data-en="Patient" data-hi="मरीज">Patient</th>
+                        <th class="trn" data-en="Doctor" data-hi="डॉक्टर">Doctor</th>
+                        <th class="trn" data-en="Schedule Date" data-hi="अपॉइंटमेंट तिथि">Schedule Date</th>
+                        <th class="trn" data-en="Time Slot" data-hi="समय स्लॉट">Time Slot</th>
+                        <th class="trn" data-en="Status" data-hi="स्थिति">Status</th>
+                        <th class="trn" data-en="Actions" data-hi="कार्रवाई" style="text-align: right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for appt in appointments %}
+                    <tr>
+                        <td><strong>#{{ appt.appointment_id }}</strong></td>
+                        <td>
+                            <a href="{{ url_for('patients.details', patient_id=appt.patient.patient_id) }}" style="font-weight: 600; color: var(--color-primary);">
+                                {{ appt.patient.name }}
+                            </a>
+                        </td>
+                        <td>{{ appt.doctor.name }}</td>
+                        <td>{{ appt.date }}</td>
+                        <td><i class="fa-regular fa-clock" style="margin-right: 6px; color: var(--color-secondary);"></i> {{ appt.time_slot }}</td>
+                        <td>
+                            <span class="badge {{ 'badge-success' if appt.status == 'Completed' else 'badge-primary' if appt.status == 'Scheduled' else 'badge-danger' }}">
+                                {{ appt.status }}
+                            </span>
+                        </td>
+                        <td style="text-align: right;">
+                            {% if appt.status == 'Scheduled' %}
+                                {% if session.get('active_role') == 'doctor' %}
+                                <a href="{{ url_for('doctors.consultation', appointment_id=appt.appointment_id) }}" class="btn btn-primary" style="padding: 6px 12px; font-size: 12px; background: var(--color-success); box-shadow: none;">
+                                    <i class="fa-solid fa-user-md"></i>
+                                    <span class="trn" data-en="Consult" data-hi="परामर्श">Consult</span>
+                                </a>
+                                {% elif session.get('active_role') == 'receptionist' %}
+                                <form action="{{ url_for('appointments.cancel', appointment_id=appt.appointment_id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Cancel this appointment? / अपॉइंटमेंट रद्द करें?');">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                    <button type="submit" class="btn btn-danger" style="padding: 6px 12px; font-size: 12px; box-shadow: none;">
+                                        <i class="fa-solid fa-calendar-minus"></i>
+                                        <span class="trn" data-en="Cancel" data-hi="रद्द करें">Cancel</span>
+                                    </button>
+                                </form>
+                                {% endif %}
+                            {% elif appt.status == 'Completed' %}
+                                <a href="{{ url_for('doctors.print_prescription', appointment_id=appt.appointment_id) }}" target="_blank" class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">
+                                    <i class="fa-solid fa-print"></i>
+                                    <span class="trn" data-en="Prescription" data-hi="पर्चा">Prescription</span>
+                                </a>
+                            {% else %}
+                                <span style="font-size: 12px; color: var(--text-muted); font-style: italic;">No Action Available</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px; color: var(--text-secondary);">
+                            <i class="fa-solid fa-calendar-times" style="font-size: 40px; margin-bottom: 10px; color: var(--text-muted);"></i>
+                            <p class="trn" data-en="No appointments found." data-hi="कोई अपॉइंटमेंट नहीं मिला।">No appointments found.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+{% block title %}ClinicConnect - Book Appointment / अपॉइंटमेंट बुकिंग{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <a href="{{ url_for('appointments.index') }}" class="btn btn-secondary" style="margin-bottom: 15px;">
+        <i class="fa-solid fa-arrow-left-long"></i>
+        <span class="trn" data-en="Back to Appointments" data-hi="अपॉइंटमेंट सूची पर वापस">Back to Appointments</span>
+    </a>
+    <h1 class="trn" data-en="Book Appointment" data-hi="अपॉइंटमेंट बुक करें" style="font-family: var(--font-heading); font-size: 28px; font-weight: 700;">Book Appointment</h1>
+    <p class="trn" data-en="Schedule a consultation with conflict validation" data-hi="टकराव सत्यापन के साथ परामर्श शेड्यूल करें" style="color: var(--text-secondary); font-size: 14px;">Schedule a consultation with conflict validation</p>
+</div>
+
+<div class="bento-grid">
+    <div class="bento-card span-12">
+        <form action="{{ url_for('appointments.book') }}" method="POST" style="display: flex; flex-direction: column; gap: 16px; max-width: 800px; margin: 0 auto; width: 100%;" id="booking-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <div class="form-group">
+                <label for="patient_id" class="trn" data-en="Select Patient (Required)" data-hi="रोगी चुनें (आवश्यक)">Select Patient (Required)</label>
+                <select id="patient_id" name="patient_id" class="form-control" required>
+                    <option value="" disabled {% if not prefill_patient_id %}selected{% endif %}>-- Select Patient / रोगी चुनें --</option>
+                    {% for patient in patients %}
+                        <option value="{{ patient.patient_id }}" {% if prefill_patient_id == patient.patient_id %}selected{% endif %}>
+                            {{ patient.name }} (#{{ patient.patient_id }} - {{ patient.contact_number }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group">
+                    <label for="doctor_id" class="trn" data-en="Select Doctor" data-hi="डॉक्टर चुनें">Select Doctor</label>
+                    <select id="doctor_id" name="doctor_id" class="form-control" required onchange="loadAvailableSlots()">
+                        {% for doc in doctors %}
+                            <option value="{{ doc.doctor_id }}">{{ doc.name }} ({{ doc.specialization }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="date" class="trn" data-en="Select Date" data-hi="दिनांक चुनें">Select Date</label>
+                    <input type="date" id="date" name="date" class="form-control" required onchange="loadAvailableSlots()">
+                </div>
+            </div>
+            
+            <!-- Dynamic Slot Grid -->
+            <div class="form-group" style="margin-top: 10px;">
+                <label class="trn" data-en="Select Available Time Slot (30-min intervals)" data-hi="उपलब्ध समय स्लॉट चुनें">Select Available Time Slot (30-min intervals)</label>
+                
+                <div id="slots-loading" style="display: none; font-size: 13px; color: var(--text-secondary); margin: 10px 0;">
+                    <i class="fa-solid fa-spinner fa-spin" style="margin-right: 6px; color: var(--color-primary);"></i>
+                    <span class="trn" data-en="Loading doctor shifts & bookings..." data-hi="डॉक्टर शिफ्ट और बुकिंग लोड हो रही है...">Loading doctor shifts & bookings...</span>
+                </div>
+                
+                <div id="slots-empty" style="font-size: 13px; color: var(--text-secondary); margin: 10px 0; background: var(--bg-base); padding: 12px; border-radius: var(--border-radius-sm); border: 1px dashed var(--border-color); text-align: center;">
+                    <i class="fa-solid fa-calendar-day" style="color: var(--text-muted); margin-bottom: 6px; display: block; font-size: 20px;"></i>
+                    <span class="trn" data-en="Please select a doctor and date to see available time slots." data-hi="उपलब्ध समय स्लॉट देखने के लिए कृपया डॉक्टर और दिनांक चुनें।">Please select a doctor and date to see available time slots.</span>
+                </div>
+                
+                <!-- Time slot grid container -->
+                <div id="slots-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; margin-bottom: 12px;">
+                    <!-- Injected dynamically by JS -->
+                </div>
+                
+                <!-- Legend directly below slots -->
+                <div style="display: flex; gap: 16px; font-size: 11px; margin-bottom: 10px; justify-content: center; background: var(--bg-base); padding: 8px; border-radius: var(--border-radius-sm); border: 1px solid var(--border-color);">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="display: inline-block; width: 10px; height: 10px; background: rgba(16, 185, 129, 0.1); border: 1px solid var(--color-success); border-radius: 2px;"></span>
+                        <span class="trn" data-en="Available" data-hi="उपलब्ध">Available</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="display: inline-block; width: 10px; height: 10px; background: rgba(239, 68, 68, 0.05); border: 1px dashed var(--color-danger); border-radius: 2px;"></span>
+                        <span class="trn" data-en="Booked / Off Shift" data-hi="बुक / समय के बाहर">Booked / Off Shift</span>
+                    </div>
+                </div>
+                
+                <!-- Hidden input to store chosen slot -->
+                <input type="hidden" name="time_slot" id="selected-time-slot" required>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group">
+                    <label for="type" class="trn" data-en="Appointment Type" data-hi="अपॉइंटमेंट प्रकार">Appointment Type</label>
+                    <select id="type" name="type" class="form-control">
+                        <option value="consultation" class="trn" data-en="Consultation" data-hi="परामर्श">Consultation</option>
+                        <option value="checkup" class="trn" data-en="Routine Checkup" data-hi="नियमित जांच">Routine Checkup</option>
+                        <option value="emergency" class="trn" data-en="Emergency" data-hi="आपातकालीन">Emergency</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="notes" class="trn" data-en="Appointment Notes (Optional)" data-hi="अपॉइंटमेंट नोट्स (वैकल्पिक)">Appointment Notes (Optional)</label>
+                    <input type="text" id="notes" name="notes" class="form-control trn" data-en="e.g. Follow-up check, stomach ache" data-hi="उदा. पेट दर्द, नियमित जांच" placeholder="e.g. Follow-up check, stomach ache">
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 12px; margin-top: 15px;">
+                <button type="submit" class="btn btn-primary" style="flex: 1;" id="confirm-booking-btn" disabled>
+                    <i class="fa-solid fa-calendar-check"></i>
+                    <span class="trn" data-en="Confirm Schedule" data-hi="बुकिंग की पुष्टि करें">Confirm Schedule</span>
+                </button>
+                <a href="{{ url_for('appointments.index') }}" class="btn btn-secondary" style="flex: 1; text-align: center;">
+                    <span class="trn" data-en="Cancel" data-hi="रद्द करें">Cancel</span>
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Initialize date selector to today's date
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('date').min = today;
+    document.getElementById('date').value = today;
+
+    // Load slots on initialization
+    loadAvailableSlots();
+
+    function loadAvailableSlots() {
+        const doctorId = document.getElementById('doctor_id').value;
+        const dateVal = document.getElementById('date').value;
+        
+        if (!doctorId || !dateVal) return;
+        
+        const grid = document.getElementById('slots-grid');
+        const loading = document.getElementById('slots-loading');
+        const empty = document.getElementById('slots-empty');
+        const submitBtn = document.getElementById('confirm-booking-btn');
+        const hiddenInput = document.getElementById('selected-time-slot');
+        
+        // Reset selections
+        hiddenInput.value = "";
+        submitBtn.disabled = true;
+        
+        grid.style.display = 'none';
+        empty.style.display = 'none';
+        loading.style.display = 'block';
+        grid.innerHTML = "";
+        
+        fetch(`/appointments/api/available-slots?doctor_id=${doctorId}&date=${dateVal}`)
+            .then(res => res.json())
+            .then(data => {
+                loading.style.display = 'none';
+                
+                if (data.slots && data.slots.length > 0) {
+                    grid.style.display = 'grid';
+                    
+                    data.slots.forEach(slot => {
+                        const btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.className = 'btn';
+                        btn.style.width = '100%';
+                        btn.style.fontSize = '12px';
+                        btn.style.padding = '8px';
+                        btn.style.boxShadow = 'none';
+                        btn.style.transition = 'all 0.15s ease';
+                        
+                        btn.textContent = slot.time;
+                        
+                        if (slot.available) {
+                            btn.style.background = 'rgba(16, 185, 129, 0.1)';
+                            btn.style.border = '1px solid var(--color-success)';
+                            btn.style.color = 'var(--color-success)';
+                            
+                            btn.onclick = () => {
+                                grid.querySelectorAll('button').forEach(b => {
+                                    if (b.dataset.available === 'true') {
+                                        b.style.background = 'rgba(16, 185, 129, 0.1)';
+                                        b.style.color = 'var(--color-success)';
+                                    }
+                                });
+                                
+                                btn.style.background = 'var(--color-success)';
+                                btn.style.color = 'white';
+                                
+                                hiddenInput.value = slot.time;
+                                submitBtn.disabled = false;
+                            };
+                            btn.dataset.available = 'true';
+                        } else {
+                            btn.style.background = 'rgba(239, 68, 68, 0.05)';
+                            btn.style.border = '1px dashed var(--color-danger)';
+                            btn.style.color = 'var(--color-danger)';
+                            btn.style.textDecoration = 'line-through';
+                            btn.style.cursor = 'not-allowed';
+                            btn.disabled = true;
+                            btn.dataset.available = 'false';
+                        }
+                        
+                        grid.appendChild(btn);
+                    });
+                } else {
+                    empty.style.display = 'block';
+                }
+            })
+            .catch(err => {
+                console.error("Error loading slots: ", err);
+                loading.style.display = 'none';
+                empty.style.display = 'block';
+            });
+    }
+</script>
+{% endblock %}

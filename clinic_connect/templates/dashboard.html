@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+
+{% block title %}ClinicConnect - Dashboard / डैशबोर्ड{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+    <div>
+        <h1 class="trn" data-en="Clinic Dashboard" data-hi="क्लिनिक डैशबोर्ड" style="font-family: var(--font-heading); font-size: 28px; font-weight: 700;">Clinic Dashboard</h1>
+        <p class="trn" data-en="Real-time operations & analytics" data-hi="वास्तविक समय संचालन और विश्लेषण" style="color: var(--text-secondary); font-size: 14px;">Real-time operations & analytics</p>
+    </div>
+    
+    <div style="background: var(--bg-surface); border: 1px solid var(--border-glass); padding: 8px 16px; border-radius: var(--border-radius-sm); font-size: 13px; font-weight: 600; color: var(--text-secondary); display: flex; align-items: center; gap: 8px;">
+        <span class="status-indicator status-online"></span>
+        <span class="trn" data-en="Active Session" data-hi="सक्रिय सत्र">Active Session</span>
+        <span class="role-tag">{{ session.get('active_role') }}</span>
+    </div>
+</div>
+
+<!-- Bento Grid Stats Widgets -->
+<div class="bento-grid">
+    <!-- Stat 1: Total Patients -->
+    <div class="bento-card span-4 stat-widget">
+        <div class="stat-info">
+            <h3 id="stat-patients">-</h3>
+            <p class="trn" data-en="Total Patients" data-hi="कुल रोगी">Total Patients</p>
+        </div>
+        <div class="stat-icon">
+            <i class="fa-solid fa-hospital-user"></i>
+        </div>
+    </div>
+    
+    <!-- Stat 2: Active Doctors -->
+    <div class="bento-card span-4 stat-widget">
+        <div class="stat-info">
+            <h3 id="stat-doctors">-</h3>
+            <p class="trn" data-en="Doctors Available" data-hi="डॉक्टर उपलब्ध">Doctors Available</p>
+        </div>
+        <div class="stat-icon" style="background: rgba(14, 165, 233, 0.15); color: var(--color-secondary);">
+            <i class="fa-solid fa-user-doctor"></i>
+        </div>
+    </div>
+    
+    <!-- Stat 3: Today's Appointments -->
+    <div class="bento-card span-4 stat-widget">
+        <div class="stat-info">
+            <h3 id="stat-appointments">-</h3>
+            <p class="trn" data-en="Appointments Today" data-hi="आज के अपॉइंटमेंट">Appointments Today</p>
+        </div>
+        <div class="stat-icon" style="background: rgba(16, 185, 129, 0.15); color: var(--color-success);">
+            <i class="fa-solid fa-calendar-check"></i>
+        </div>
+    </div>
+</div>
+
+<!-- Bento Grid Charts Widgets -->
+<div class="bento-grid">
+    <!-- Chart 1: Registration Trends (Line Chart) -->
+    <div class="bento-card span-8">
+        <div class="card-header">
+            <h4 class="card-title">
+                <i class="fa-solid fa-chart-line"></i>
+                <span class="trn" data-en="Patient Registration Trends" data-hi="रोगी पंजीकरण रुझान">Patient Registration Trends</span>
+            </h4>
+        </div>
+        <div style="position: relative; height: 300px; width: 100%;">
+            <canvas id="chart-registrations"></canvas>
+        </div>
+    </div>
+    
+    <!-- Chart 2: Status Distribution (Doughnut Chart) -->
+    <div class="bento-card span-4">
+        <div class="card-header">
+            <h4 class="card-title">
+                <i class="fa-solid fa-circle-pie"></i>
+                <span class="trn" data-en="Appointment Statuses" data-hi="अपॉइंटमेंट स्थिति">Appointment Statuses</span>
+            </h4>
+        </div>
+        <div style="position: relative; height: 300px; width: 100%; display: flex; align-items: center; justify-content: center;">
+            <canvas id="chart-status"></canvas>
+        </div>
+    </div>
+    
+    <!-- Chart 3: Doctor Load (Bar Chart) -->
+    <div class="bento-card span-6">
+        <div class="card-header">
+            <h4 class="card-title">
+                <i class="fa-solid fa-chart-bar"></i>
+                <span class="trn" data-en="Doctor Consultation Load" data-hi="डॉक्टर कार्यभार">Doctor Consultation Load</span>
+            </h4>
+        </div>
+        <div style="position: relative; height: 300px; width: 100%;">
+            <canvas id="chart-workload"></canvas>
+        </div>
+    </div>
+    
+    <!-- Chart 4: Top Diagnoses (Horizontal Bar) -->
+    <div class="bento-card span-6">
+        <div class="card-header">
+            <h4 class="card-title">
+                <i class="fa-solid fa-virus-covid"></i>
+                <span class="trn" data-en="Top Diagnosed Ailments" data-hi="शीर्ष निदान रोग">Top Diagnosed Ailments</span>
+            </h4>
+        </div>
+        <div style="position: relative; height: 300px; width: 100%;">
+            <canvas id="chart-diagnoses"></canvas>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Load Stats
+    fetch('/api/stats')
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('stat-patients').textContent = data.patients;
+            document.getElementById('stat-doctors').textContent = data.doctors;
+            document.getElementById('stat-appointments').textContent = data.appointments;
+        })
+        .catch(err => console.error("Error loading stats: ", err));
+
+    // 2. Load Charts Analytics
+    fetch('/api/analytics-data')
+        .then(res => res.json())
+        .then(data => {
+            const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--color-primary').trim() || '#4f46e5';
+            const secondaryColor = getComputedStyle(document.documentElement).getPropertyValue('--color-secondary').trim() || '#0ea5e9';
+            const successColor = getComputedStyle(document.documentElement).getPropertyValue('--color-success').trim() || '#10b981';
+            const warningColor = getComputedStyle(document.documentElement).getPropertyValue('--color-warning').trim() || '#f59e0b';
+            const dangerColor = getComputedStyle(document.documentElement).getPropertyValue('--color-danger').trim() || '#ef4444';
+            const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-primary').trim() || '#1e293b';
+            const borderGlass = getComputedStyle(document.documentElement).getPropertyValue('--border-color').trim() || 'rgba(99, 102, 241, 0.08)';
+
+            // Chart Defaults Config
+            Chart.defaults.color = textColor;
+            Chart.defaults.font.family = "'Inter', sans-serif";
+
+            // A. Patient Registrations Chart
+            new Chart(document.getElementById('chart-registrations'), {
+                type: 'line',
+                data: {
+                    labels: data.registrations.labels,
+                    datasets: [{
+                        label: 'Registrations',
+                        data: data.registrations.data,
+                        borderColor: primaryColor,
+                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 3,
+                        pointBackgroundColor: primaryColor
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { 
+                            beginAtZero: true, 
+                            grid: { color: borderGlass },
+                            ticks: { precision: 0 }
+                        },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // B. Appointment Status Chart
+            new Chart(document.getElementById('chart-status'), {
+                type: 'doughnut',
+                data: {
+                    labels: data.status.labels,
+                    datasets: [{
+                        data: data.status.data,
+                        backgroundColor: [successColor, warningColor, dangerColor, primaryColor],
+                        borderWidth: 2,
+                        borderColor: 'transparent'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 12, padding: 15 } }
+                    },
+                    cutout: '65%'
+                }
+            });
+
+            // C. Doctor Workload Chart
+            new Chart(document.getElementById('chart-workload'), {
+                type: 'bar',
+                data: {
+                    labels: data.workload.labels,
+                    datasets: [{
+                        data: data.workload.data,
+                        backgroundColor: secondaryColor,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { 
+                            beginAtZero: true, 
+                            grid: { color: borderGlass },
+                            ticks: { precision: 0 }
+                        },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // D. Top Diagnoses Chart
+            new Chart(document.getElementById('chart-diagnoses'), {
+                type: 'bar',
+                data: {
+                    labels: data.diagnoses.labels,
+                    datasets: [{
+                        data: data.diagnoses.data,
+                        backgroundColor: primaryColor,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { 
+                            beginAtZero: true, 
+                            grid: { color: borderGlass },
+                            ticks: { precision: 0 }
+                        },
+                        y: { grid: { display: false } }
+                    }
+                }
+            });
+        })
+        .catch(err => console.error("Error loading charts: ", err));
+});
+</script>
+{% endblock %}

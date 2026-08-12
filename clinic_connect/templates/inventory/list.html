@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}ClinicConnect - Pharmacy Inventory / इन्वेंटरी नियंत्रण{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <h1 class="trn" data-en="Pharmacy Inventory" data-hi="फार्मेसी इन्वेंटरी" style="font-family: var(--font-heading); font-size: 28px; font-weight: 700;">Pharmacy Inventory</h1>
+    <p class="trn" data-en="Manage drug stocks and price sheets" data-hi="दवा स्टॉक और मूल्य सूची प्रबंधित करें" style="color: var(--text-secondary); font-size: 14px;">Manage drug stocks and price sheets</p>
+</div>
+
+<!-- Bento Grid Stats for Inventory -->
+<div class="bento-grid">
+    <!-- Stat 1: Total distinct drugs -->
+    <div class="bento-card span-6 stat-widget">
+        <div class="stat-info">
+            <h3>{{ total_distinct_items }}</h3>
+            <p class="trn" data-en="Total Registered Medications" data-hi="कुल पंजीकृत दवाएं">Total Registered Medications</p>
+        </div>
+        <div class="stat-icon">
+            <i class="fa-solid fa-pills"></i>
+        </div>
+    </div>
+    
+    <!-- Stat 2: Active warnings -->
+    <div class="bento-card span-6 stat-widget" style="{% if alert_count > 0 %}background: rgba(239, 68, 68, 0.05); border-color: rgba(239, 68, 68, 0.1);{% endif %}">
+        <div class="stat-info">
+            <h3 style="{% if alert_count > 0 %}color: var(--color-danger);{% endif %}">{{ alert_count }}</h3>
+            <p class="trn" data-en="Low Stock Warnings" data-hi="कम स्टॉक चेतावनी">Low Stock Warnings</p>
+        </div>
+        <div class="stat-icon" style="background: rgba(239, 68, 68, 0.15); color: var(--color-danger);">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+    </div>
+</div>
+
+<div class="bento-grid">
+    <!-- List of items (Bento card) -->
+    <div class="bento-card span-8" style="padding: 0; overflow: hidden;">
+        <div class="table-responsive">
+            <table class="clinic-table">
+                <thead>
+                    <tr>
+                        <th class="trn" data-en="ID" data-hi="आईडी">ID</th>
+                        <th class="trn" data-en="Medicine Name" data-hi="दवा का नाम">Medicine Name</th>
+                        <th class="trn" data-en="Stock Level" data-hi="स्टॉक स्तर">Stock Level</th>
+                        <th class="trn" data-en="Unit Price" data-hi="इकाई मूल्य">Unit Price</th>
+                        <th class="trn" data-en="Min Limit" data-hi="न्यूनतम सीमा">Min Limit</th>
+                        {% if session.get('active_role') == 'receptionist' %}
+                        <th class="trn" data-en="Quick Update" data-hi="त्वरित अपडेट" style="text-align: right;">Quick Update</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    <tr>
+                        <td><strong>#{{ item.item_id }}</strong></td>
+                        <td style="font-weight: 600;">{{ item.name }}</td>
+                        <td>
+                            <strong style="color: {% if item.stock_quantity <= item.min_threshold %}var(--color-danger){% else %}var(--text-primary){% endif %};">
+                                {{ item.stock_quantity }} units
+                            </strong>
+                            {% if item.stock_quantity <= item.min_threshold %}
+                                <span class="badge badge-danger" style="font-size: 9px; padding: 2px 6px; margin-left: 6px;">LOW</span>
+                            {% endif %}
+                        </td>
+                        <td>₹{{ item.unit_price }}</td>
+                        <td>{{ item.min_threshold }}</td>
+                        
+                        {% if session.get('active_role') == 'receptionist' %}
+                        <td style="text-align: right;">
+                            <!-- Simple inline form inside table -->
+                            <form action="{{ url_for('inventory.update_stock', item_id=item.item_id) }}" method="POST" style="display: flex; gap: 8px; justify-content: flex-end;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                <input type="number" name="stock_quantity" value="{{ item.stock_quantity }}" class="form-control" style="width: 75px; padding: 4px 8px; font-size: 13px;" required min="0">
+                                <input type="number" name="unit_price" value="{{ item.unit_price }}" class="form-control" style="width: 75px; padding: 4px 8px; font-size: 13px;" required step="0.1" min="0">
+                                <button type="submit" class="btn btn-secondary btn-icon" style="padding: 4px;" title="Save Stock Details">
+                                    <i class="fa-solid fa-save"></i>
+                                </button>
+                            </form>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 40px; color: var(--text-secondary);">
+                            <i class="fa-solid fa-boxes-empty" style="font-size: 40px; margin-bottom: 10px; color: var(--text-muted);"></i>
+                            <p class="trn" data-en="Inventory is currently empty." data-hi="स्टॉक वर्तमान में खाली है।">Inventory is currently empty.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Add new stock panel -->
+    <div class="bento-card span-4">
+        {% if session.get('active_role') == 'receptionist' %}
+        <div class="card-header">
+            <h4 class="card-title">
+                <i class="fa-solid fa-box-open"></i>
+                <span class="trn" data-en="Register Medicine" data-hi="दवा पंजीकृत करें">Register Medicine</span>
+            </h4>
+        </div>
+        
+        <form action="{{ url_for('inventory.add_item') }}" method="POST" style="display: flex; flex-direction: column; gap: 14px;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="name" class="trn" data-en="Medicine Name (Required)" data-hi="दवा का नाम (आवश्यक)">Medicine Name (Required)</label>
+                <input type="text" id="name" name="name" class="form-control trn" data-en="e.g. Paracetamol 650mg" data-hi="दवा का नाम दर्ज करें" placeholder="e.g. Paracetamol 650mg" required>
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="stock_quantity" class="trn" data-en="Initial Stock Count" data-hi="प्रारंभिक स्टॉक संख्या">Initial Stock Count</label>
+                <input type="number" id="stock_quantity" name="stock_quantity" class="form-control" value="100" min="0" required>
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="unit_price" class="trn" data-en="Unit Price (INR)" data-hi="इकाई मूल्य (INR)">Unit Price (INR)</label>
+                <input type="number" id="unit_price" name="unit_price" class="form-control" value="2.5" min="0" step="0.1" required>
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="min_threshold" class="trn" data-en="Safety Alert Threshold" data-hi="कम स्टॉक चेतावनी सीमा">Safety Alert Threshold</label>
+                <input type="number" id="min_threshold" name="min_threshold" class="form-control" value="15" min="1" required>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="margin-top: 10px;">
+                <i class="fa-solid fa-plus-circle"></i>
+                <span class="trn" data-en="Register Stock" data-hi="स्टॉक जोड़ें">Register Stock</span>
+            </button>
+        </form>
+        {% else %}
+        <div style="text-align: center; color: var(--text-secondary); padding: 40px 10px;">
+            <i class="fa-solid fa-lock" style="font-size: 32px; color: var(--text-muted); margin-bottom: 10px;"></i>
+            <h4 class="trn" data-en="Access Restricted" data-hi="पहुंच प्रतिबंधित">Access Restricted</h4>
+            <p class="trn" data-en="Only the active Receptionist session can add new stocks or edit pricing indices." data-hi="केवल सक्रिय रिसेप्शनिस्ट नया स्टॉक जोड़ सकते हैं।">Only the active Receptionist session can add new stocks or edit pricing indices.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

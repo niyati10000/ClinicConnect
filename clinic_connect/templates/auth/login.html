@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}ClinicConnect - Login / लॉगिन{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <!-- Floating Glass Switchers -->
+    <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 12px; background: var(--bg-surface); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border: 1px solid var(--border-glass); padding: 6px 16px; border-radius: 50px; box-shadow: var(--shadow-sm); z-index: 1002;">
+        <button onclick="toggleLanguage()" class="lang-toggle" title="Switch Language / भाषा बदलें" style="font-size: 16px;">
+            <i class="fa-solid fa-language"></i>
+            <span style="font-size: 12px; font-weight: 700; margin-left: 4px;" id="current-lang-label">EN</span>
+        </button>
+        <button onclick="toggleTheme()" class="theme-toggle" title="Toggle Theme" style="font-size: 16px;">
+            <i class="fa-solid fa-circle-half-stroke"></i>
+        </button>
+    </div>
+
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2 class="trn" data-en="Clinic Login" data-hi="क्लिनिक लॉगिन">Clinic Login</h2>
+            <p class="trn" data-en="Sign in to access your clinic dashboard" data-hi="अपने क्लिनिक डैशबोर्ड तक पहुँचने के लिए साइन इन करें">Sign in to access your clinic dashboard</p>
+        </div>
+        
+        <form action="{{ url_for('auth.login') }}" method="POST" style="display: flex; flex-direction: column; gap: 16px;">
+            <input type="hidden" name="csrf_token" value="{{ session.get('csrf_token') }}">
+            
+            <div class="form-group">
+                <label for="license_code" class="trn" data-en="Clinic License Code" data-hi="क्लिनिक लाइसेंस कोड">Clinic License Code</label>
+                <input type="text" id="license_code" name="license_code" class="form-control trn" data-en="Enter license code" data-hi="लाइसेंस कोड दर्ज करें" placeholder="Enter license code" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password" class="trn" data-en="Password" data-hi="पासवर्ड">Password</label>
+                <input type="password" id="password" name="password" class="form-control trn" data-en="Enter your password" data-hi="अपना पासवर्ड दर्ज करें" placeholder="Enter your password" required>
+            </div>
+            
+            <div style="display: flex; gap: 12px; margin-top: 10px;">
+                <button type="submit" class="btn btn-primary" style="flex: 1.2;">
+                    <i class="fa-solid fa-lock-open"></i>
+                    <span class="trn" data-en="Secure Login" data-hi="सुरक्षित लॉगिन">Secure Login</span>
+                </button>
+        </form>
+        
+        <!-- One-Click Demo Mode Auto Seeder -->
+        <form action="{{ url_for('auth.demo_login') }}" method="POST" style="flex: 0.8; display: inline;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <button type="submit" class="btn btn-secondary" style="width: 100%; border: 1px solid var(--color-primary); color: var(--color-primary);" title="Load demo clinic instantly">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <span class="trn" data-en="Try Demo" data-hi="डेमो देखें">Try Demo</span>
+            </button>
+        </form>
+        </div>
+        
+        <div style="text-align: center; font-size: 13.5px; color: var(--text-secondary); border-top: 1px dashed var(--border-color); padding-top: 20px; margin-top: 10px;">
+            <span class="trn" data-en="New Clinic?" data-hi="नया क्लिनिक है?">New Clinic? </span>
+            <a href="{{ url_for('auth.register') }}" style="color: var(--color-primary); font-weight: 700;" class="trn" data-en="Register Organization" data-hi="क्लिनिक पंजीकृत करें">Register Organization</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

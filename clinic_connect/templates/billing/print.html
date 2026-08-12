@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Receipt / बिल रसीद - ClinicConnect</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            background-color: #fff;
+            padding: 40px;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+
+        .no-print-header {
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            padding: 15px 30px;
+            margin-bottom: 35px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 8px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: #4f46e5;
+            color: white;
+            border-radius: 6px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #334155;
+        }
+        
+        .letterhead {
+            text-align: center;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+
+        .letterhead h1 {
+            font-size: 26px;
+            margin: 0 0 5px 0;
+            color: #1e1b4b;
+        }
+
+        .letterhead p {
+            margin: 3px 0;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .invoice-title {
+            text-align: center;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+        }
+
+        .meta-table {
+            width: 100%;
+            margin-bottom: 25px;
+            font-size: 13px;
+        }
+
+        .meta-table td {
+            padding: 4px 0;
+        }
+        
+        .item-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        .item-table th {
+            text-align: left;
+            padding: 10px;
+            background: #f8fafc;
+            border-bottom: 2px solid #cbd5e1;
+            font-size: 12px;
+            color: #475569;
+        }
+
+        .item-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 14px;
+        }
+
+        .item-table .total-row td {
+            border-top: 2px solid #cbd5e1;
+            border-bottom: double 3px #cbd5e1;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        /* Large paid/pending stamp */
+        .stamp-box {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .stamp {
+            display: inline-block;
+            padding: 8px 20px;
+            font-size: 20px;
+            font-weight: 800;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transform: rotate(-5deg);
+        }
+
+        .stamp-paid {
+            border: 3px solid #10b981;
+            color: #10b981;
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .stamp-pending {
+            border: 3px solid #f59e0b;
+            color: #f59e0b;
+            background: rgba(245, 158, 11, 0.05);
+        }
+
+        .invoice-footer {
+            margin-top: 60px;
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid #cbd5e1;
+            padding-top: 20px;
+            font-size: 12px;
+        }
+
+        @media print {
+            .no-print-header {
+                display: none !important;
+            }
+            body {
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Printable Receipt Header -->
+    <div class="no-print-header">
+        <div>
+            <strong style="color: #1e293b;">Print Invoice Portal</strong>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <button onclick="window.print()" class="btn">
+                <i class="fa-solid fa-print"></i> Print Bill (बिल रसीद)
+            </button>
+            <button onclick="window.close()" class="btn btn-secondary">
+                Close Window
+            </button>
+        </div>
+    </div>
+
+    <!-- Letterhead -->
+    <div class="letterhead">
+        <h1>{{ invoice.clinic.name }}</h1>
+        <p>{{ invoice.clinic.address }}</p>
+        <p>Contact: {{ invoice.clinic.contact_number }} | Email: {{ invoice.clinic.email }}</p>
+    </div>
+
+    <div class="invoice-title">Payment Receipt</div>
+
+    <!-- Metadata Details -->
+    <table class="meta-table">
+        <tr>
+            <td style="width: 15%;"><strong>Invoice No:</strong></td>
+            <td style="width: 35%;">#CC-INV-{{ invoice.invoice_id }}</td>
+            <td style="width: 15%; text-align: right;"><strong>Date:</strong></td>
+            <td style="width: 35%; text-align: right;">{{ invoice.created_at.strftime('%d-%b-%Y %I:%M %p') }}</td>
+        </tr>
+        <tr>
+            <td><strong>Patient:</strong></td>
+            <td>{{ invoice.patient.name }} (#{{ invoice.patient.patient_id }})</td>
+            <td style="text-align: right;"><strong>Age/Sex:</strong></td>
+            <td style="text-align: right;">{{ invoice.patient.age }} yrs / {{ invoice.patient.gender }}</td>
+        </tr>
+        <tr>
+            <td><strong>Contact:</strong></td>
+            <td>{{ invoice.patient.contact_number }}</td>
+            <td style="text-align: right;"><strong>Doctor:</strong></td>
+            <td style="text-align: right;">{{ invoice.appointment.doctor.name }}</td>
+        </tr>
+    </table>
+
+    <!-- Itemized List -->
+    <table class="item-table">
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th style="text-align: right; width: 30%;">Amount (INR)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Doctor Consultation / Checkup Fees</td>
+                <td style="text-align: right;">₹{{ invoice.consultation_fee }}</td>
+            </tr>
+            <tr>
+                <td>Prescribed Pharmacy Medicines Charge</td>
+                <td style="text-align: right;">₹{{ invoice.medicine_fee }}</td>
+            </tr>
+            <tr class="total-row">
+                <td>Total Charged</td>
+                <td style="text-align: right;">₹{{ invoice.total_amount }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Dynamic Status Stamp -->
+    <div class="stamp-box">
+        {% if invoice.status == 'Paid' %}
+            <div class="stamp stamp-paid"><i class="fa-solid fa-stamp"></i> PAID / भुगतान प्राप्त</div>
+        {% else %}
+            <div class="stamp stamp-pending"><i class="fa-solid fa-hourglass-start"></i> PAYMENT PENDING / बकाया</div>
+        {% endif %}
+    </div>
+
+    <!-- Invoice Footer -->
+    <div class="invoice-footer">
+        <div>
+            <p>Thank you for choosing {{ invoice.clinic.name }}!</p>
+        </div>
+        <div style="text-align: right; width: 180px;">
+            <div style="border-bottom: 1px solid #94a3b8; height: 35px; margin-bottom: 5px;"></div>
+            <p style="color: #64748b;">Authorized Receptionist Seal</p>
+        </div>
+    </div>
+
+</body>
+</html>
