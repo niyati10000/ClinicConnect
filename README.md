@@ -1,4 +1,7 @@
-# 🏥 ClinicConnect — Multi-Tenant Healthcare & Clinic Management System
+# 🏥 ClinicConnect — Multi-Tenant Healthcare & Clinic Management 
+
+**Hostedlink**
+https://niyati26.pythonanywhere.com/
 
 **ClinicConnect** is an enterprise-grade, multi-tenant Clinic Operations and Electronic Health Record (EHR) platform. It is engineered specifically for hospitals, polyclinics, and rural healthcare centers with **offline-first SMS sync capabilities**, **conflict-free scheduling**, **pharmacy inventory tracking**, and **strict tenant data isolation**.
 
